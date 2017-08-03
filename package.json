@@ -1,0 +1,106 @@
+{
+  "name": "mssql-pool-party",
+  "version": "0.1.5",
+  "description": "Extension of mssql that provides management of multiple connection pools, dsns, retries, and more",
+  "main": "dist/index.js",
+  "files": [
+    "dist/",
+    "src/"
+  ],
+  "scripts": {
+    "build": "node_modules/.bin/babel src --out-dir dist --ignore test.js --source-maps --copy-files",
+    "docs": "jsdoc2md --configure jsdoc.json src/**/*.js > API.md",
+    "lint": "node_modules/.bin/eslint src test --fix",
+    "test": "npm run lint && node_modules/.bin/jest",
+    "test:docker": "./test/start-mssql.sh",
+    "test:integration": "node --trace-warnings node_modules/.bin/jest --config test/jest.json",
+    "test:integration-debug": "node --debug-brk --inspect node_modules/.bin/jest --runInBand -i --config test/jest.json --env jest-environment-node-debug",
+    "prepublish": "npm run lint && npm run test && npm run docs && npm run build",
+    "pretest": "echo 'Most of our testing is done via integration tests. See package.json for more information.'"
+  },
+  "repository": "godaddy/mssql-pool-party",
+  "keywords": [
+    "mssql",
+    "sql",
+    "failover",
+    "dsn"
+  ],
+  "license": "MIT",
+  "author": {
+    "name": "Grant Shively",
+    "email": "gshively@godaddy.com"
+  },
+  "dependencies": {
+    "aggregate-error": "^1.0.0",
+    "debug": "^2.6.3",
+    "lodash.partial": "^4.2.1",
+    "mssql": "^3.3.0",
+    "promise-reduce": "^2.1.0",
+    "promise-retry": "^1.1.1",
+    "uuid": "^3.0.1"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.23.0",
+    "babel-core": "^6.24.0",
+    "babel-eslint": "^7.1.1",
+    "babel-jest": "^19.0.0",
+    "babel-plugin-add-module-exports": "^0.2.1",
+    "babel-plugin-transform-class-properties": "^6.23.0",
+    "babel-plugin-transform-object-rest-spread": "^6.23.0",
+    "babel-preset-es2015": "^6.22.0",
+    "eslint": "^3.19.0",
+    "eslint-config-airbnb": "^14.1.0",
+    "eslint-plugin-import": "^2.2.0",
+    "eslint-plugin-jsx-a11y": "^4.0.0",
+    "eslint-plugin-react": "^6.9.0",
+    "jest": "^19.0.2",
+    "jest-environment-node-debug": "^2.0.0",
+    "jest-junit": "^1.3.0",
+    "jsdoc-babel": "^0.3.0",
+    "jsdoc-to-markdown": "^3.0.0"
+  },
+  "babel": {
+    "presets": [
+      "es2015"
+    ],
+    "sourceMaps": "inline",
+    "retainLines": true,
+    "plugins": [
+      "transform-class-properties",
+      "transform-object-rest-spread",
+      "add-module-exports"
+    ]
+  },
+  "jest": {
+    "collectCoverageFrom": [
+      "src/**/*.js"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "branches": 100,
+        "functions": 100,
+        "lines": 100,
+        "statements": 100
+      }
+    },
+    "coveragePathIgnorePatterns": [
+      "src/**/*.test.js"
+    ],
+    "roots": [
+      "src/"
+    ]
+  },
+  "eslintConfig": {
+    "extends": "airbnb",
+    "env": {
+      "jasmine": true,
+      "jest": true
+    },
+    "parser": "babel-eslint",
+    "rules": {
+      "import/prefer-default-export": 0,
+      "no-confusing-arrow": 0,
+      "no-underscore-dangle": 0
+    }
+  }
+}
