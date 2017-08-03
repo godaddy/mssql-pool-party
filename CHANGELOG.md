@@ -1,3 +1,9 @@
+# 0.1.6 (August 3rd, 2017)
+
+## Other
+
+- Version bump with no change in functionality. This was done to avoid conflits with a previous version hosted on our internal registry.
+
 # 0.1.5 (July 21th, 2017)
 
 ## Other
