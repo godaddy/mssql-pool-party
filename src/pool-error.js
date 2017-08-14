@@ -1,8 +1,10 @@
 export default class PoolError extends Error {
   constructor(pool, err) {
     super(err);
-    this.pool = { ...pool };
-    // don't want passwords appearing in errors
-    delete this.pool.dsn.password;
+    // clone the dsn and don't expose the password
+    if (pool && pool.dsn) {
+      this.dsn = { ...pool.dsn };
+      delete this.dsn.password;
+    }
   }
 }
