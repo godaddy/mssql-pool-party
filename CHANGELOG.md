@@ -1,3 +1,9 @@
+# 0.2.0 (August 14th, 2017)
+
+## Breaking Change
+
+- The `pool` property has been removed from the `PoolError` class due to concerns about exposing references to internal connections and DSNs. There is now a `dsn` property which contains information about the DSN owned by the pool involved in the error.
+
 # 0.1.6 (August 3rd, 2017)
 
 ## Other
