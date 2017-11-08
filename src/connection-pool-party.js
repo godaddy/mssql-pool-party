@@ -561,7 +561,6 @@ export default class ConnectionPoolParty extends EventEmitter {
         // skip the heal. If there are any unhealthy pools,
         // we need to heal them before sorting.
         if (unhealthyPools.length === 0) {
-          this.pools.sort(poolPrioritySort);
           debug('no unhealthy pools detected during prioritization');
           return true;
         }
