@@ -147,6 +147,69 @@ describe('prioritized pools tests', () => {
         expect(connection.pools[1].connection.connected).toEqual(false);
       });
   });
+  it(`if only some of the unhealthy pools are healed, the ones that remain
+    unhealthy will not be prioritized`, () => {
+    connection = new sql.ConnectionPoolParty({
+      // the dsns are the same, but are sufficient for these tests
+      dsns: [
+        {
+          user: 'sa',
+          password: 'PoolPartyyy9000',
+          server: 'localhost',
+          database: 'PoolParty',
+          priority: 2,
+        },
+        {
+          user: 'sa',
+          password: 'wrong password',
+          server: 'localhost',
+          database: 'PoolParty',
+          priority: 0,
+        },
+        {
+          user: 'sa',
+          password: 'PoolPartyyy9000',
+          server: 'localhost',
+          database: 'PoolParty',
+          priority: 1,
+        },
+      ],
+      prioritizePools: true,
+      // this helps prevent warmup from resolving before all the pools are created
+      warmupStrategy: serialWarmupStrategy,
+    });
+    return connection.warmup()
+      .then(() => {
+        // confirm priority2 pool is first, priority0 is second, and priority1 is third
+        expect(connection.pools[0].dsn.priority).toEqual(2);
+        expect(connection.pools[1].dsn.priority).toEqual(0);
+        expect(connection.pools[2].dsn.priority).toEqual(1);
+        // confirm the priority0 pool is disconnected
+        expect(connection.pools[0].connection.connected).toEqual(true);
+        expect(connection.pools[1].connection.connected).toEqual(false);
+        expect(connection.pools[2].connection.connected).toEqual(true);
+        return connection.pools[2].connection.close();
+      })
+      .then(() => {
+        // confirm priority0 and priority1 pools are disconnected
+        expect(connection.pools[0].connection.connected).toEqual(true);
+        expect(connection.pools[1].connection.connected).toEqual(false);
+        expect(connection.pools[2].connection.connected).toEqual(false);
+        jest.runOnlyPendingTimers();
+      })
+      // need to wait for the heal to finish during the prioritize cycle
+      .then(delay(1000, realSetTimeout))
+      .then(() => {
+        // confirm that priority1 was reprioritized but priority0 was not
+        // because it is still disconnected
+        expect(connection.pools[0].dsn.priority).toEqual(1);
+        expect(connection.pools[1].dsn.priority).toEqual(2);
+        expect(connection.pools[2].dsn.priority).toEqual(0);
+        expect(connection.pools[0].connection.connected).toEqual(true);
+        expect(connection.pools[1].connection.connected).toEqual(true);
+        expect(connection.pools[2].connection.connected).toEqual(false);
+      });
+  });
   it('does not heal pools with a lower priority than the primary during a prioritize cycle', () => {
     connection = new sql.ConnectionPoolParty({
       // the dsns are the same, but are sufficient for these tests

@@ -572,9 +572,6 @@ export default class ConnectionPoolParty extends EventEmitter {
           debug('none of the pools eligible for prioritization are healthy, unable to prioritize');
           return;
         }
-        // if any of the eligible pools are healthy, we prioritize. it would be preferable
-        // if we identified which pools didn't heal and ignore them in the
-        // prioritization, but that would require a little refactoring.
         this.pools.sort(poolPrioritySort);
         debug('prioritized pools');
       })
