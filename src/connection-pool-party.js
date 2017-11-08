@@ -212,17 +212,18 @@ export default class ConnectionPoolParty extends EventEmitter {
   close = cb => Promise.all(
     this.pools.map(pool => pool.connection.close()),
   )
+    .then(() => {
+      this.pools = [];
+    })
     .catch((err) => {
+      this.pools = [];
       this.emit('error', err);
     })
     .then(() => {
-      this.pools = [];
       if (this._prioritizeTimer) {
         clearInterval(this._prioritizeTimer);
         this._prioritizeTimer = null;
       }
-    })
-    .then(() => {
       if (typeof cb === 'function') {
         cb();
       }
