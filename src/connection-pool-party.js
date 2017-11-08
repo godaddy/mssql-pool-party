@@ -60,6 +60,7 @@ const debug = setDebug('mssql-pool-party');
 *  for more information.
 * @param {boolean} [config.prioritizePools] - A flag to enable pool prioritization behavior.
 *  If you enable this behavior, your dsns must have a numeric priority property.
+*  The lower the number, the higher the priority of the dsn, starting at 0.
 *  At a specified interval, the pools collection will be examined to see if the pools
 *  are no longer indexed in order of priority. If this is the case, the pools will be
 *  healed (if applicable) and re-ordered in terms of their priority. This is a useful
