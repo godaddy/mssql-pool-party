@@ -1,3 +1,9 @@
+# 0.2.2 (November 9th, 2017)
+
+## Bug Fixes
+
+- Fixed a bug in the reconnect process that was uncovered by the bug fix in 0.2.1. In 0.2.1, we started detecting pool healing failures correctly, which started triggering a condition in the reconnect process that prevented a reconnect if no pools were healed, which turned out not to be desirable. Now, if no pools were healed during a reconnect, it jumps right to another heal attempt.
+
 # 0.2.1 (November 9th, 2017)
 
 ## Features
