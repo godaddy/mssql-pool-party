@@ -45,6 +45,8 @@ describe('prioritized pools tests', () => {
         // force a prioritize cycle
         jest.runOnlyPendingTimers();
       })
+      // need to wait for the heal to finish during the prioritize cycle
+      .then(delay(1000, realSetTimeout))
       .then(() => {
         // confirm priority1 pool is now second and priority0 is now first
         expect(connection.pools[0].dsn.priority).toEqual(0);

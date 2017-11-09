@@ -133,9 +133,7 @@ export default class ConnectionPoolParty extends EventEmitter {
   * @method #warmup
   */
   warmup = (cb) => {
-    if (this._warmupPromise) {
-      debug('warmup called again while already in progress');
-    } else {
+    if (!this._warmupPromise) {
       debug('warmup called');
     }
     // only run one warmup at a time for each instance of ConnectionPoolParty
@@ -343,6 +341,7 @@ export default class ConnectionPoolParty extends EventEmitter {
         errors: [],
         unhealthyPools: [],
         attemptNumber: 0,
+        anyPoolsHealed: false,
       };
       return promiseRetry(
         { retries: options.reconnects },
@@ -352,6 +351,13 @@ export default class ConnectionPoolParty extends EventEmitter {
           .then(() => {
             debug(attempts);
             attempts.connectNumber = connectNumber;
+            // if there are errors from the last attempt, we emit them and
+            // clear the collection so that each run has a clean slate
+            if (attempts.errors.length > 0) {
+              const allErrors = new AggregateError(attempts.errors);
+              this.emit('error', allErrors);
+              attempts.errors = [];
+            }
             if (this.pools.length === 0) {
               // it's possible for a warmup to fail and no pools to be created, if so
               // we stop here and hope a retry succeeds
@@ -363,6 +369,20 @@ export default class ConnectionPoolParty extends EventEmitter {
             if (connectNumber > 1) {
               this.reconnectCount += 1;
             }
+            // if all the pools are unhealthy from the last attempt, we
+            // skip trying to re-run the request and go straight to
+            // another heal attempt.
+            // otherwise, we just clear out the unhealthy pools and let
+            // _tryRequest re-identify them.
+            if (!attempts.anyPoolsHealed &&
+              attempts.unhealthyPools.length === this.pools.length
+            ) {
+              debug('none of the pools are healthy, skipping _tryRequest, attempting a heal');
+              return attempts;
+            }
+            attempts.unhealthyPools = [];
+            attempts.anyPoolsHealed = false;
+
             // attempt request using each pool sequentially, skips others after success
             // clone array to avoid mutation during iteration
             return Promise.resolve([...this.pools])
@@ -388,19 +408,13 @@ export default class ConnectionPoolParty extends EventEmitter {
             // returns a bool indicating if a heal attempt was made against any pool.
             return this._healPools(attempts.unhealthyPools)
               .then((anyPoolsHealed) => {
-                // if the request wasn't successful, but at least one pool was healed,
-                // we can retry our request against the pools
+                attempts.anyPoolsHealed = anyPoolsHealed;
+                debug('triggering a reconnect if any remain');
+                // if the request wasn't successful, we retry.
+                // if we have exceeded the max number of reconnects, this will
+                // throw instead of retrying
                 const allErrors = new AggregateError(attempts.errors);
-                if (anyPoolsHealed) {
-                  this.emit('error', allErrors);
-                  // clear out errors and unhealthyPools before retrying
-                  // because we don't want errors and unhealthy pools from
-                  // previous attempts influencing later ones
-                  attempts.errors = [];
-                  attempts.unhealthyPools = [];
-                  return retry(allErrors);
-                }
-                throw allErrors;
+                return retry(allErrors);
               });
           }),
       )
@@ -443,6 +457,7 @@ export default class ConnectionPoolParty extends EventEmitter {
   _healPools = (unhealthyPools) => {
     // if we don't have any unhealthy pools, just return
     if (unhealthyPools.length === 0) {
+      debug('_healPools called with no unhealthy pools');
       return Promise.resolve(false);
     }
     // get any updated dsn info from the provider
@@ -450,9 +465,8 @@ export default class ConnectionPoolParty extends EventEmitter {
       .then(addDefaultDsnProperties)
       .then(addConnectionPoolProperties(this.connectionPoolConfig))
       .catch((err) => {
-        // if the dsn provider fails to give us updated dsns
-        // we will just try recreating connections using the existing
-        // dsns.
+        debug(`failed to retrieve updated dsns, using existing dsns to
+          create new connections`);
         this.emit('error', err);
         return this.pools.map(pool => pool.dsn);
       })
@@ -471,6 +485,7 @@ export default class ConnectionPoolParty extends EventEmitter {
           anyPoolsHealed = anyPoolsHealed || !!result;
         });
         this._healingPromise = null;
+        debug(`healing complete, any pools healed? ${anyPoolsHealed}`);
         return anyPoolsHealed;
       });
     return this._healingPromise;
