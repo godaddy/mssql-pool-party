@@ -1,3 +1,13 @@
+# 0.2.1 (November 9th, 2017)
+
+## Features
+
+- Added optional pool prioritization. This feature is intended to provide a means to failback to a preferred DSN after previously promoting a lower priority DSN. [See here](API.md#new-connectionpoolpartyconfig-cb) for configuration options.
+
+## Bug Fixes
+
+- Fixed a bug in the heal process that was preventing heal failures from being detected properly in most cases. This will prevent unnecessary retries against unhealthy pools.
+
 # 0.2.0 (August 14th, 2017)
 
 ## Breaking Change
