@@ -7,6 +7,9 @@ export default function poolStats(pool) {
     retryCount,
   } = pool;
   const {
+    priority,
+  } = pool.dsn;
+  const {
     connecting,
     connected,
   } = pool.connection;
@@ -46,6 +49,7 @@ export default function poolStats(pool) {
       server,
       database,
       id,
+      priority,
       createdAt,
       driver,
       port,

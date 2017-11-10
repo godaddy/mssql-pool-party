@@ -1,3 +1,9 @@
+# 0.2.3 (November 10th, 2017)
+
+## Features
+
+- Added priority to stats output.
+
 # 0.2.2 (November 9th, 2017)
 
 ## Bug Fixes
