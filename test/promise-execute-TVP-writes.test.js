@@ -1,4 +1,5 @@
 import * as sql from '../src';
+import delay from './delay';
 
 let connection;
 
@@ -6,7 +7,7 @@ describe('execute TVP write using promise interface', () => {
   let originalTimeout;
   beforeAll(() => {
     originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 15000;
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 60000;
   });
   beforeEach(() => {
     connection = new sql.ConnectionPoolParty({
@@ -28,7 +29,6 @@ describe('execute TVP write using promise interface', () => {
       // need to give mssql ample time to clear the table so tests
       // don't step on eachother
       setTimeout(done, 5000);
-      done();
     }),
   );
   it('execute proc with TVP containing 10000 rows',
@@ -53,6 +53,7 @@ describe('execute TVP write using promise interface', () => {
       .then((results) => {
         expect(results.returnValue).toEqual(0);
       })
+      .then(delay(5000)) // allow all writes to be flushed from the buffer.
       .then(() => connection.request().query('SELECT * FROM PoolParty.dbo.PoolToys'))
       .then((results) => {
         expect(results.recordset.length).toEqual(10000);

@@ -87,7 +87,8 @@
       "src/**/*.test.js"
     ],
     "roots": [
-      "src/"
+      "src/",
+      "test"
     ]
   },
   "eslintConfig": {
