@@ -1,4 +1,5 @@
 import * as sql from '../src';
+import delay from './delay';
 
 let connection;
 
@@ -6,7 +7,7 @@ describe('execute many writes tests using promise interface', () => {
   let originalTimeout;
   beforeAll(() => {
     originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 60000;
   });
   beforeEach(() => {
     connection = new sql.ConnectionPoolParty({
@@ -30,7 +31,6 @@ describe('execute many writes tests using promise interface', () => {
       // need to give mssql ample time to clear the table so tests
       // don't step on eachother
       setTimeout(done, 2000);
-      done();
     }),
   );
   it('perform 10000 writes',
@@ -54,6 +54,7 @@ describe('execute many writes tests using promise interface', () => {
       .then((results) => {
         expect(results.every(result => result.returnValue === 0)).toEqual(true);
       })
+      .then(delay(5000)) // allow all writes to be flushed from the buffer.
       .then(() => connection.request().query('SELECT * FROM PoolParty.dbo.PoolToys'))
       .then((results) => {
         expect(results.recordset.length).toEqual(10000);

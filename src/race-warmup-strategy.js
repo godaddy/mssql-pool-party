@@ -31,10 +31,10 @@ export default function raceWarmupStrategy(dsns, connectionPoolFactory, onCreati
           // and resolve if we haven't already done so
           (pool) => {
             numberProcessed += 1;
-            debug(`warmup: pool ${numberProcessed} created ${(pool.warmupError && 'with error') || ''}`);
+            debug(`warmup: pool ${numberProcessed} created ${(pool.error && 'with error') || ''}`);
             onCreation(pool);
             // we only want to resolve once
-            if (!resolved && !pool.warmupError) {
+            if (!resolved && !pool.error) {
               resolved = true;
               debug('warmup: resolved');
               resolve();
