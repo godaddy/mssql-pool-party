@@ -1,3 +1,9 @@
+# 0.2.4 (November 13th, 2017)
+
+## Bug Fixes
+
+- Fixed a bug in the default raceWarmup strategy that was incorrectly resolving the warmup if a pool failed to connect properly. This should make initial connections a little more reliable.
+
 # 0.2.3 (November 10th, 2017)
 
 ## Features
