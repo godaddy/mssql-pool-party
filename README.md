@@ -27,12 +27,17 @@ import sql from 'mssql-pool-party';
 
 const config = {
   // See configuration section below for more information
-  dsn: {/* ... */} 
+  dsn: {
+    user: ...
+    password: ...
+    server: ...
+    database: ...
+  } 
 };
 
 const connection = new sql.ConnectionPoolParty(config);
 
-connection.on('error', console.err);
+connection.on('error', console.error);
 
 export default connection;
 ```
