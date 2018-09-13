@@ -9,6 +9,7 @@ import promiseRetry from 'promise-retry';
 import promiseReduce from 'promise-reduce';
 import partial from 'lodash.partial';
 import AggregateError from 'aggregate-error';
+import uuidv4 from 'uuid/v4';
 import validateConfig from './validate-config';
 import addDefaultDsnProperties from './add-default-dsn-properties';
 import defaultConnectionPoolFactory from './default-connection-pool-factory';
@@ -20,7 +21,6 @@ import addDefaultStats from './add-default-stats';
 import copyPoolStats from './copy-pool-stats';
 import requestStreamPromise from './request-stream-promise';
 import isStreamingEnabled from './is-streaming-enabled';
-import coalesceRequestResults from './coalesce-request-results';
 import wrapListeners from './wrap-listeners';
 import requestMethodSuccess from './request-method-success';
 import requestMethodFailure from './request-method-failure';
@@ -55,9 +55,13 @@ const debug = setDebug('mssql-pool-party');
 *  you want to attach to the config provided when creating an mssql ConnectionPool. This is
 *  useful if you don't want to create a custom dsnProvider or connectionPoolFactory to modify
 *  the configuration used to create ConnectionPools. Just keep in mind that any config set here
-*  will override the config set in the dsnProvider. Also keep in mind that node-mssql expects some
-*  configuration to exists on an "options" property (like timeouts). Check node-mssql README.md
-*  for more information.
+*  will override the config set in the dsnProvider. Check node-mssql README.md for more information.
+* @param {object} [config.connectionPoolConfig.options] - An object containing any configuration
+*  you want to pass all the way to driver used by node-mssql, e.g. appName, encrypt, etc.
+*  Check node-mssql README.md for more information.
+* @param {object} [config.connectionPoolConfig.pool] - An object containing any configuration
+*  you want to pass to the pool implementation internal to node-mssql, e.g. max, min,
+*  idleTimeout, etc. Check node-mssql README.md for more information.
 * @param {boolean} [config.prioritizePools] - A flag to enable pool prioritization behavior.
 *  If you enable this behavior, your dsns must have a numeric priority property.
 *  The lower the number, the higher the priority of the dsn, starting at 0.
@@ -103,10 +107,26 @@ export default class ConnectionPoolParty extends EventEmitter {
       (() => Promise.resolve(this.config.dsns || [this.config.dsn]));
     this.connectionPoolFactory = this.config.connectionPoolFactory ||
       defaultConnectionPoolFactory;
+    // need to default to a low idle/eviction timeout for node-mssql's pool implementation
+    // due to this: https://github.com/tediousjs/node-mssql/issues/457
+    this.connectionPoolPoolConfigDefaults = {
+      evictionRunIntervalMillis: 500,
+      idleTimeoutMillis: 500,
+    };
     // we need a way to set mssql ConnectionPool config properties without
     // having to specify a custom dsnProvider or connecitonPoolFactory. this
     // gives us that.
     this.connectionPoolConfig = this.config.connectionPoolConfig || {};
+    // enable driver encryption by default
+    // https://github.com/tediousjs/tedious/blob/85d3e20cad481492b6f6b9cb7e9fd8feee6d599e/src/connection.js#L358
+    this.connectionPoolConfig.options = {
+      encrypt: true,
+      ...this.connectionPoolConfig.options,
+    };
+    this.connectionPoolConfig.pool = {
+      ...this.connectionPoolPoolConfigDefaults,
+      ...this.connectionPoolConfig.pool,
+    };
     this.warmupStrategy = this.config.warmupStrategy || raceWarmupStrategy;
     this._warmupPromise = null;
     this._healingPromise = null;
@@ -141,7 +161,7 @@ export default class ConnectionPoolParty extends EventEmitter {
       .then(addDefaultDsnProperties)
       .then(addConnectionPoolProperties(this.connectionPoolConfig))
       .then((dsns) => {
-        debug(`retrieved dsns \n${(dsns && JSON.stringify(dsns, null, 2)) || 'NONE'}`);
+        debug('retrieved dsns \n%O', dsns || 'NONE');
         // make sure we empty the pools (they should already be empty)
         this.pools = [];
         // the warmup strategy decides how we want to wait for the connections
@@ -154,9 +174,7 @@ export default class ConnectionPoolParty extends EventEmitter {
           dsns,
           this.connectionPoolFactory,
           (pool) => {
-            debug(`pool created for dsn ${pool.dsn.id} (${pool.dsn.server}).
-              pool added at index ${this.pools.length}`);
-            debug(pool);
+            debug('pool created for dsn %s (%s), at index %d\n%O', pool.dsn.id, pool.dsn.server, this.pools.length, pool);
             this.pools.push(addDefaultStats(pool));
           },
           this.emit.bind(this, 'error'),
@@ -196,6 +214,16 @@ export default class ConnectionPoolParty extends EventEmitter {
       ...options,
     };
     const request = new sql.Request();
+    // We need to explicitly set stream to true if it's in the config until
+    // this bug is fixed https://github.com/tediousjs/node-mssql/issues/705
+    request.stream = !!(
+      this.config.connectionPoolConfig &&
+      this.config.connectionPoolConfig.stream
+    );
+    // This helps identify individual requests in the debug output
+    if (debug.enabled) {
+      request.id = uuidv4();
+    }
     return this._wrapRequest(optionsWithDefaults, request);
   }
 
@@ -209,12 +237,17 @@ export default class ConnectionPoolParty extends EventEmitter {
   * @method #close
   */
   close = cb => Promise.all(
-    this.pools.map(pool => pool.connection.close()),
+    this.pools.map((pool) => {
+      debug('closing pool %s', pool.dsn.id);
+      return pool.connection.close();
+    }),
   )
     .then(() => {
+      debug('all pools closed');
       this.pools = [];
     })
     .catch((err) => {
+      debug('one or more pools failed to close!\n%O', err);
       this.pools = [];
       this.emit('error', err);
     })
@@ -222,6 +255,7 @@ export default class ConnectionPoolParty extends EventEmitter {
       if (this._prioritizeTimer) {
         clearInterval(this._prioritizeTimer);
         this._prioritizeTimer = null;
+        debug('prioritize timer stopped');
       }
       if (typeof cb === 'function') {
         cb();
@@ -255,7 +289,7 @@ export default class ConnectionPoolParty extends EventEmitter {
       { retries: options.retries },
       (retry, tryNumber) => {
         // run the request using the pool
-        request.connection = pool.connection;
+        request.parent = pool.connection;
         // we want to record each time we rely on a retry in a pool's stats
         if (tryNumber > 1) {
           pool.retryCount += 1;
@@ -270,10 +304,6 @@ export default class ConnectionPoolParty extends EventEmitter {
           ? requestStreamPromise(request, originalMethod, attempts)
           : originalMethod;
         return originalMethodPromise.apply(request, args)
-          // we need to juggle the results from the different interfaces.
-          // promises can only return a single value
-          // but callbacks and streams can return multiple
-          .then(coalesceRequestResults)
           .catch((err) => {
             // if there is a failure, check to see if the request can be retried
             if (this._isErrorRetryable(err)) {
@@ -284,20 +314,15 @@ export default class ConnectionPoolParty extends EventEmitter {
       },
     )
     .then(
-      ({ recordset, returnValue, rowsAffected }) => {
+      (result) => {
         // the request succeeded, just record and return the results
-        attempts.success = {
-          recordset,
-          returnValue,
-          rowsAffected,
-        };
+        attempts.success = result;
         return attempts;
       },
       (err) => {
         // the request failed, record the error and check to see
         // if the pool is unhealthy
-        debug(`request failed for pool ${pool.dsn.id}`);
-        debug(err);
+        debug('request (%s) failed for pool %s\n%O', request.id, pool.dsn.id, err);
         attempts.errors.push(new PoolError(pool, err));
         if (this._isPoolUnhealthy(pool, err)) {
           attempts.unhealthyPools.push(pool);
@@ -324,7 +349,6 @@ export default class ConnectionPoolParty extends EventEmitter {
   _wrapRequestMethod = (options, request, method) => {
     const originalMethod = request[method];
     return (...args) => {
-      debug(`attempting request ${method} with args ${args.join(', ')}`);
       // need to support the same optional callback interface provided by mssql package
       const cb = args[args.length - 1];
       if (typeof cb === 'function') {
@@ -349,7 +373,6 @@ export default class ConnectionPoolParty extends EventEmitter {
         // if we're already warmed up, this will just immediately resolve
         (retry, connectNumber) => this.warmup()
           .then(() => {
-            debug(attempts);
             attempts.connectNumber = connectNumber;
             // if there are errors from the last attempt, we emit them and
             // clear the collection so that each run has a clean slate
@@ -382,7 +405,8 @@ export default class ConnectionPoolParty extends EventEmitter {
             }
             attempts.unhealthyPools = [];
             attempts.anyPoolsHealed = false;
-
+            debug('info for request %s (%s)\nargs: %O\nattempts: %O', method, request.id, args.join(', '), attempts);
+            // debug(`attempt ${attempts.attemptNumber} for request ${request.id} (0 is first)`);
             // attempt request using each pool sequentially, skips others after success
             // clone array to avoid mutation during iteration
             return Promise.resolve([...this.pools])
@@ -409,7 +433,6 @@ export default class ConnectionPoolParty extends EventEmitter {
             return this._healPools(attempts.unhealthyPools)
               .then((anyPoolsHealed) => {
                 attempts.anyPoolsHealed = anyPoolsHealed;
-                debug('triggering a reconnect if any remain');
                 // if the request wasn't successful, we retry.
                 // if we have exceeded the max number of reconnects, this will
                 // throw instead of retrying
@@ -461,7 +484,9 @@ export default class ConnectionPoolParty extends EventEmitter {
       return Promise.resolve(false);
     }
     // get any updated dsn info from the provider
-    this._healingPromise = this._healingPromise || this.dsnProvider()
+    this._healingPromise = this._healingPromise || Promise.resolve()
+      .then(() => debug('healing started, retrieving new dsns from provider'))
+      .then(() => this.dsnProvider())
       .then(addDefaultDsnProperties)
       .then(addConnectionPoolProperties(this.connectionPoolConfig))
       .catch((err) => {
@@ -514,7 +539,9 @@ export default class ConnectionPoolParty extends EventEmitter {
         dsns with the same ids used during initial warmup.
       `));
     }
-    return this.connectionPoolFactory(updatedDsn)
+    return Promise.resolve()
+      .then(() => debug(`healing pool ${unhealthyPool.dsn.id}`))
+      .then(() => this.connectionPoolFactory(updatedDsn))
       .then(
         (pool) => {
           if (pool.error) {
@@ -528,6 +555,7 @@ export default class ConnectionPoolParty extends EventEmitter {
           pool.lastHealAt = Date.now();
           pool.healCount += 1;
           this.pools.splice(unhealthyPoolIndex, 1, pool);
+          debug(`pool ${unhealthyPool.dsn.id} healed`);
           return true;
         },
         err => err,

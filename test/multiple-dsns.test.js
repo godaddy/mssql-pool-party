@@ -24,9 +24,7 @@ describe('multiple dsn tests', () => {
       ],
     });
   });
-  afterEach(() => {
-    connection.close();
-  });
+  afterEach(() => connection.close());
   it(`secondary pool is promoted when the primary is unhealthy and the secondary succeeds.
       in addition, the former primary is not healed, it remains unhealthy after demotion.`, () => {
     let primaryId;

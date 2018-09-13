@@ -1,7 +1,7 @@
 import sql from 'mssql';
 
 export default function defaultConnectionPoolFactory(dsn) {
-  const connection = new sql.Connection(dsn);
+  const connection = new sql.ConnectionPool(dsn);
   // we don't want an 'Uncaught, unspecified "error" event.' exception
   // so we have a dummy listener here.
   connection.on('error', () => {});

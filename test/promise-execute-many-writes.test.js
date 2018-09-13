@@ -24,14 +24,9 @@ describe('execute many writes tests using promise interface', () => {
   afterAll(() => {
     jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
   });
-  afterEach(done => connection.request()
+  afterEach(() => connection.request()
     .query('TRUNCATE TABLE PoolParty.dbo.PoolToys;')
-    .then(() => {
-      connection.close();
-      // need to give mssql ample time to clear the table so tests
-      // don't step on eachother
-      setTimeout(done, 2000);
-    }),
+    .then(() => connection.close()),
   );
   it('perform 10000 writes',
     () => connection.warmup()

@@ -15,9 +15,7 @@ describe('healing race tests', () => {
       reconnects: 1,
     });
   });
-  afterEach(() => {
-    connection.close();
-  });
+  afterEach(() => connection.close());
   it('multiple simultaneous requests only result in a single healing attempt on unhealthy pool',
     () => connection.warmup()
       .then(() => connection.pools[0].connection.close())

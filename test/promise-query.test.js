@@ -2,6 +2,7 @@ import AggregateError from 'aggregate-error';
 import * as sql from '../src';
 
 const queryResults = {
+  output: {},
   recordset: [
     { ID: 1, PartyAnimalName: 'Plato' },
     { ID: 2, PartyAnimalName: 'Socrates' },
@@ -11,8 +12,18 @@ const queryResults = {
     { ID: 6, PartyAnimalName: 'Diogenes' },
     { ID: 7, PartyAnimalName: 'Lycophron' },
   ],
-  returnValue: undefined,
-  rowsAffected: undefined,
+  recordsets: [
+    [
+      { ID: 1, PartyAnimalName: 'Plato' },
+      { ID: 2, PartyAnimalName: 'Socrates' },
+      { ID: 3, PartyAnimalName: 'Anaximander' },
+      { ID: 4, PartyAnimalName: 'Anaximenes' },
+      { ID: 5, PartyAnimalName: 'Speusippus' },
+      { ID: 6, PartyAnimalName: 'Diogenes' },
+      { ID: 7, PartyAnimalName: 'Lycophron' },
+    ],
+  ],
+  rowsAffected: [7],
 };
 
 let connection;
@@ -30,9 +41,7 @@ describe('query tests using promise interface', () => {
       reconnects: 1,
     });
   });
-  afterEach(() => {
-    connection.close();
-  });
+  afterEach(() => connection.close());
   it('returns expected results with explicit warmup',
     () => connection.warmup()
       .then(() => {

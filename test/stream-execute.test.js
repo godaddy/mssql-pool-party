@@ -1,11 +1,31 @@
 import * as sql from '../src';
 
 const procResults = {
-  columns: expect.any(Object),
-  rows: [
-    [{ ID: 6, PartyAnimalName: 'Diogenes' }],
-  ],
-  rowsAffected: 0,
+  columns: {
+    ID: {
+      index: 0,
+      name: 'ID',
+      nullable: false,
+      caseSensitive: false,
+      identity: true,
+      readOnly: true,
+      type: expect.any(Function),
+    },
+    PartyAnimalName: {
+      index: 1,
+      name: 'PartyAnimalName',
+      length: 65535,
+      nullable: true,
+      caseSensitive: false,
+      identity: false,
+      readOnly: false,
+      type: expect.any(Function),
+    },
+  },
+  output: {},
+  returnValue: 0,
+  rows: [{ ID: 6, PartyAnimalName: 'Diogenes' }],
+  rowsAffected: [],
 };
 
 let connection;
@@ -18,15 +38,15 @@ describe('execute (stored procedures) tests using stream interface', () => {
         password: 'PoolPartyyy9000',
         server: 'localhost',
         database: 'PoolParty',
+      },
+      connectionPoolConfig: {
         stream: true,
       },
       retries: 1,
       reconnects: 1,
     });
   });
-  afterEach(() => {
-    connection.close();
-  });
+  afterEach(() => connection.close());
   it('emits expected results with explicit warmup', (done) => {
     let attempt = 0;
     let results;
@@ -60,13 +80,11 @@ describe('execute (stored procedures) tests using stream interface', () => {
           }
           errors.push(err);
         });
-        request.on('done', (rowsAffected, attemptNumber) => {
-          results.rowsAffected = rowsAffected;
+        request.on('done', (result, attemptNumber) => {
+          Object.assign(results, result);
           expect(attemptNumber).toBe(1);
           expect(errors.length).toBe(0);
-          // stringifying because of this issue
-          // https://github.com/jasmine/jasmine/issues/786
-          expect(JSON.stringify(results)).toEqual(JSON.stringify(procResults));
+          expect(results).toEqual(procResults);
           done();
         });
       });
@@ -102,11 +120,11 @@ describe('execute (stored procedures) tests using stream interface', () => {
       }
       errors.push(err);
     });
-    request.on('done', (rowsAffected, attemptNumber) => {
-      results.rowsAffected = rowsAffected;
+    request.on('done', (result, attemptNumber) => {
+      Object.assign(results, result);
       expect(attemptNumber).toBe(1);
       expect(errors.length).toBe(0);
-      expect(JSON.stringify(results)).toEqual(JSON.stringify(procResults));
+      expect(results).toEqual(procResults);
       done();
     });
   });
@@ -149,11 +167,11 @@ describe('execute (stored procedures) tests using stream interface', () => {
           }
           errors.push(err);
         });
-        request.on('done', (rowsAffected, attemptNumber) => {
-          results.rowsAffected = rowsAffected;
+        request.on('done', (result, attemptNumber) => {
+          Object.assign(results, result);
           expect(attemptNumber).toBe(3);
           expect(errors.length).toBe(0);
-          expect(JSON.stringify(results)).toEqual(JSON.stringify(procResults));
+          expect(results).toEqual(procResults);
           done();
         });
       });
@@ -167,6 +185,20 @@ describe('execute (stored procedures) tests using stream interface', () => {
       errors = [];
       results = { rows: [] };
     };
+    connection.close();
+    connection = new sql.ConnectionPoolParty({
+      dsn: {
+        user: 'sa',
+        password: 'PoolPartyyy9000',
+        server: 'localhost',
+        database: 'PoolParty',
+      },
+      connectionPoolConfig: {
+        stream: true,
+      },
+      retries: 1,
+      reconnects: 0,
+    });
     connection.warmup()
       .then(() => {
         expect(connection.pools[0].connection.connected).toEqual(true);
@@ -197,7 +229,7 @@ describe('execute (stored procedures) tests using stream interface', () => {
           }
           errors.push(err);
         });
-        request.on('done', (rowsAffected, attemptNumber) => {
+        request.on('done', (result, attemptNumber) => {
           expect(attemptNumber).toBe(2);
           expect(errors.length).toBe(1);
           done();

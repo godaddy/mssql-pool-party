@@ -19,9 +19,7 @@ describe('warmup race tests', () => {
       connectionPoolFactory: factorySpy,
     });
   });
-  afterEach(() => {
-    connection.close();
-  });
+  afterEach(() => connection.close());
   it('multiple simultaneous requests with implicit warmup only result in a single warmup', () => Promise.all([
     connection.request().query('select * from PartyAnimals'),
     connection.request().query('select * from PartyAnimals'),

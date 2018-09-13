@@ -18,18 +18,17 @@ const statsAfterWarmup = {
       database: 'PoolParty',
       id: expect.any(String),
       createdAt: expect.any(Number),
-      driver: 'tedious',
       port: 1433,
-      tdsVersion: '7_4',
+      appName: 'mssql-pool-party-tests',
+      encrypt: false,
       readOnlyIntent: false,
       poolMin: 0,
       poolMax: 10,
     },
     timeouts: {
-      connect: 15000,
-      request: 15000,
-      cancel: 5000,
-      poolIdle: 30000,
+      connect: 5000,
+      request: 30000,
+      poolIdle: 500,
     },
   }, {
     health: {
@@ -47,18 +46,17 @@ const statsAfterWarmup = {
       database: 'PoolParty',
       id: expect.any(String),
       createdAt: expect.any(Number),
-      driver: 'tedious',
       port: 1433,
-      tdsVersion: '7_4',
+      appName: 'mssql-pool-party-tests',
+      encrypt: false,
       readOnlyIntent: false,
       poolMin: 0,
       poolMax: 10,
     },
     timeouts: {
-      connect: 15000,
-      request: 15000,
-      cancel: 5000,
-      poolIdle: 30000,
+      connect: 5000,
+      request: 30000,
+      poolIdle: 500,
     },
   }],
   healing: false,
@@ -86,6 +84,15 @@ describe('stats tests', () => {
       }],
       retries: 1,
       reconnects: 1,
+      connectionPoolConfig: {
+        connectTimeout: 5000,
+        requestTimeout: 30000,
+        options: {
+          readOnlyIntent: false,
+          encrypt: false,
+          appName: 'mssql-pool-party-tests',
+        },
+      },
     });
   });
   afterEach(() => {

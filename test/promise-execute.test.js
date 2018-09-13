@@ -2,10 +2,13 @@ import AggregateError from 'aggregate-error';
 import * as sql from '../src';
 
 const procResults = {
-  recordset: [
+  output: {},
+  recordset: [{ ID: 6, PartyAnimalName: 'Diogenes' }],
+  recordsets: [
     [{ ID: 6, PartyAnimalName: 'Diogenes' }],
   ],
   returnValue: 0,
+  rowsAffected: [],
 };
 
 let connection;
@@ -23,9 +26,7 @@ describe('execute (stored procedures) tests using promise interface', () => {
       reconnects: 1,
     });
   });
-  afterEach(() => {
-    connection.close();
-  });
+  afterEach(() => connection.close());
   it('returns expected results with explicit warmup',
     () => connection.warmup()
       .then(() => {
@@ -34,9 +35,7 @@ describe('execute (stored procedures) tests using promise interface', () => {
           .input('ID', sql.Int, 6)
           .execute('GetPartyAnimalByID')
           .then((result) => {
-            // stringifying because of this issue
-            // https://github.com/jasmine/jasmine/issues/786
-            expect(JSON.stringify(result)).toEqual(JSON.stringify(procResults));
+            expect(result).toEqual(procResults);
           });
       }));
   it('returns expected results with implicit warmup', () => {
@@ -45,7 +44,7 @@ describe('execute (stored procedures) tests using promise interface', () => {
       .input('ID', sql.Int, 6)
       .execute('GetPartyAnimalByID')
       .then((result) => {
-        expect(JSON.stringify(result)).toEqual(JSON.stringify(procResults));
+        expect(result).toEqual(procResults);
       });
   });
   it('returns expected results after a reconnect',
@@ -62,7 +61,7 @@ describe('execute (stored procedures) tests using promise interface', () => {
           .input('ID', sql.Int, 6)
           .execute('GetPartyAnimalByID')
           .then((result) => {
-            expect(JSON.stringify(result)).toEqual(JSON.stringify(procResults));
+            expect(result).toEqual(procResults);
           });
       }));
   it('rejects with an error with an unhealthy connection and 0 reconnects',

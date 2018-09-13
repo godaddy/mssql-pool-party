@@ -13,7 +13,7 @@ export default function requestStreamPromise(request, originalMethod, attempts) 
       errors.push(err);
       request.emit('poolparty_error', err, attempts.attemptNumber);
     };
-    const doneHandler = (...params) => {
+    const doneHandler = (result) => {
       request.removeListener('_recordset', recordsetHandler);
       request.removeListener('_row', rowHandler);
       request.removeListener('_error', errorHandler);
@@ -21,20 +21,7 @@ export default function requestStreamPromise(request, originalMethod, attempts) 
       if (errors.length > 0) {
         return reject(new AggregateError(errors));
       }
-      // annoyingly, we have to rely on parameter cardinality here
-      // because v3 mssql sends parameters in different order depending
-      // on the method called.
-      if (params.length === 2) {
-        return resolve({
-          returnValue: params[0],
-          rowsAffected: params[1],
-        });
-      } else if (params.length === 1) {
-        return resolve({
-          rowsAffected: params[0],
-        });
-      }
-      return resolve({});
+      return resolve(result);
     };
     originalMethod.apply(request, args);
     request.on('_recordset', recordsetHandler);

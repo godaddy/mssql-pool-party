@@ -14,9 +14,7 @@ const config = {
 let connection;
 
 describe('other tests using callback interface', () => {
-  afterEach(() => {
-    connection.close();
-  });
+  afterEach(() => connection.close());
   it(`constructor accepts an optional callback which will trigger a warmup and
       call it afterwrard`, (done) => {
     connection = new sql.ConnectionPoolParty(config, () => {
