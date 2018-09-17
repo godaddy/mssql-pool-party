@@ -32,7 +32,12 @@ const config = {
     password: ...
     server: ...
     database: ...
-  } 
+  },
+  connectionPoolConfig: {
+    options: {
+      encrypt: true,
+    }
+  }
 };
 
 const connection = new sql.ConnectionPoolParty(config);
@@ -68,6 +73,14 @@ const dsnProvider = jsonFileDsnProvider('/etc/secrets/my_db.json');
 
 const config = {
   dsnProvider,
+  connectionPoolConfig: {
+    connectTimeout: 5000,
+    requestTimeout: 30000,
+    options: {
+      appName: 'mssql-pool-party-example',
+      encrypt: true,
+    },
+  },
   retries: 2,
   reconnects: 1,
 };
@@ -105,6 +118,8 @@ export default function runQuery(id) {
 
 Check out the [detailed API documentation](API.md#new-connectionpoolpartyconfig).
 
+You'll also want to familiarize yourself with [`node-mssql`'s documentation](https://github.com/tediousjs/node-mssql/blob/master/README.md#documentation), as much of it applies to mssql-pool-party.
+
 ### Events
 
 - `error` - This event is fired whenever errors are encountered that DO NOT result in a rejected promise, stream error, or callback error that can be accessed/caught by the consuming app, which makes this event the only way to respond to such errors. Example: An app initiates a query, the first attempt fails, but a retry is triggered and the second attempt succeeds. From the apps perspective, the retry attempt isn't visible and their promised query is resolved. However, apps may want to know when a query requires a retry to succeed, so we emit the error using this event. **TAKE NOTE**: Unlike the mssql package, failing to subscribe to the error event will not result in an unhandled exception and subsequent process crash.
@@ -138,7 +153,7 @@ request.on('rows', (row, attemptNumber) => {
   rows.push(row);
 });
 // NOTE: done is only called after the final attempt
-request.on('done', (rowsAffected, attemptNumber) => {
+request.on('done', (result, attemptNumber) => {
   if (errors.length) {
     errors.forEach(console.log);
     throw new Error('Unhandled errors.  Handle them!');

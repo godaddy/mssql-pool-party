@@ -15,12 +15,13 @@ AS
   FROM PartyAnimals
   WHERE ID = @ID
 GO
-CREATE TABLE PoolToys (
-  ID int primary key IDENTITY(1,1) NOT NULL,
+CREATE TYPE PoolToysTableType AS TABLE (
   PoolToyName nvarchar(max)
 );
 GO
-CREATE TYPE PoolToysTableType AS TABLE (
+
+CREATE TABLE PoolToys (
+  ID int primary key IDENTITY(1,1) NOT NULL,
   PoolToyName nvarchar(max)
 );
 GO
@@ -46,6 +47,38 @@ AS
 BEGIN
   SET NOCOUNT ON;
   INSERT INTO PoolToys (PoolToyName)
+  SELECT pt.PoolToyName FROM @poolToys AS pt;
+END
+GO
+
+/* duplicate objects for parallel integration tests */
+CREATE TABLE PoolToys2 (
+  ID int primary key IDENTITY(1,1) NOT NULL,
+  PoolToyName nvarchar(max)
+);
+GO
+CREATE PROCEDURE GetPoolToys2
+AS
+  SET NOCOUNT ON;
+  SELECT *
+  FROM PoolToys2
+GO
+CREATE PROCEDURE AddPoolToy2
+  @PoolToyName nvarchar(max)
+AS
+BEGIN
+  SET NOCOUNT ON;
+  INSERT INTO PoolToys2 (PoolToyName)
+  VALUES (@PoolToyName)
+END
+GO
+CREATE PROCEDURE AddPoolToyTVP2 (
+  @poolToys PoolToysTableType READONLY
+)
+AS
+BEGIN
+  SET NOCOUNT ON;
+  INSERT INTO PoolToys2 (PoolToyName)
   SELECT pt.PoolToyName FROM @poolToys AS pt;
 END
 GO

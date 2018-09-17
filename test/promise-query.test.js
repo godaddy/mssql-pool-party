@@ -2,6 +2,7 @@ import AggregateError from 'aggregate-error';
 import * as sql from '../src';
 
 const queryResults = {
+  output: {},
   recordset: [
     { ID: 1, PartyAnimalName: 'Plato' },
     { ID: 2, PartyAnimalName: 'Socrates' },
@@ -11,8 +12,18 @@ const queryResults = {
     { ID: 6, PartyAnimalName: 'Diogenes' },
     { ID: 7, PartyAnimalName: 'Lycophron' },
   ],
-  returnValue: undefined,
-  rowsAffected: undefined,
+  recordsets: [
+    [
+      { ID: 1, PartyAnimalName: 'Plato' },
+      { ID: 2, PartyAnimalName: 'Socrates' },
+      { ID: 3, PartyAnimalName: 'Anaximander' },
+      { ID: 4, PartyAnimalName: 'Anaximenes' },
+      { ID: 5, PartyAnimalName: 'Speusippus' },
+      { ID: 6, PartyAnimalName: 'Diogenes' },
+      { ID: 7, PartyAnimalName: 'Lycophron' },
+    ],
+  ],
+  rowsAffected: [7],
 };
 
 let connection;
@@ -26,13 +37,19 @@ describe('query tests using promise interface', () => {
         server: 'localhost',
         database: 'PoolParty',
       },
+      // set due to this bug https://github.com/tediousjs/node-mssql/issues/457
+      // without this, jest will hang waiting for open handles to close
+      connectionPoolConfig: {
+        pool: {
+          evictionRunIntervalMillis: 500,
+          idleTimeoutMillis: 500,
+        },
+      },
       retries: 1,
       reconnects: 1,
     });
   });
-  afterEach(() => {
-    connection.close();
-  });
+  afterEach(() => connection.close());
   it('returns expected results with explicit warmup',
     () => connection.warmup()
       .then(() => {

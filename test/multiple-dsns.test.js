@@ -22,11 +22,17 @@ describe('multiple dsn tests', () => {
           database: 'PoolParty',
         },
       ],
+      // set due to this bug https://github.com/tediousjs/node-mssql/issues/457
+      // without this, jest will hang waiting for open handles to close
+      connectionPoolConfig: {
+        pool: {
+          evictionRunIntervalMillis: 500,
+          idleTimeoutMillis: 500,
+        },
+      },
     });
   });
-  afterEach(() => {
-    connection.close();
-  });
+  afterEach(() => connection.close());
   it(`secondary pool is promoted when the primary is unhealthy and the secondary succeeds.
       in addition, the former primary is not healed, it remains unhealthy after demotion.`, () => {
     let primaryId;

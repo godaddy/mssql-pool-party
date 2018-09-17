@@ -12,12 +12,18 @@ describe('healing race tests', () => {
         server: 'localhost',
         database: 'PoolParty',
       },
+      // set due to this bug https://github.com/tediousjs/node-mssql/issues/457
+      // without this, jest will hang waiting for open handles to close
+      connectionPoolConfig: {
+        pool: {
+          evictionRunIntervalMillis: 500,
+          idleTimeoutMillis: 500,
+        },
+      },
       reconnects: 1,
     });
   });
-  afterEach(() => {
-    connection.close();
-  });
+  afterEach(() => connection.close());
   it('multiple simultaneous requests only result in a single healing attempt on unhealthy pool',
     () => connection.warmup()
       .then(() => connection.pools[0].connection.close())

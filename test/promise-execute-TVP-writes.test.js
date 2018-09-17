@@ -17,23 +17,26 @@ describe('execute TVP write using promise interface', () => {
         server: 'localhost',
         database: 'PoolParty',
       },
+      // set due to this bug https://github.com/tediousjs/node-mssql/issues/457
+      // without this, jest will hang waiting for open handles to close
+      connectionPoolConfig: {
+        pool: {
+          evictionRunIntervalMillis: 500,
+          idleTimeoutMillis: 500,
+        },
+      },
     });
   });
   afterAll(() => {
     jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
   });
-  afterEach(done => connection.request()
-    .query('TRUNCATE TABLE PoolParty.dbo.PoolToys;')
-    .then(() => {
-      connection.close();
-      // need to give mssql ample time to clear the table so tests
-      // don't step on eachother
-      setTimeout(done, 5000);
-    }),
+  afterEach(() => connection.request()
+    .query('TRUNCATE TABLE PoolParty.dbo.PoolToys2;')
+    .then(() => connection.close()),
   );
   it('execute proc with TVP containing 10000 rows',
     () => connection.warmup()
-      .then(() => connection.request().query('SELECT * FROM PoolParty.dbo.PoolToys'))
+      .then(() => connection.request().query('SELECT * FROM PoolParty.dbo.PoolToys2'))
       .then((results) => {
         expect(results.recordset.length).toEqual(0);
       })
@@ -48,13 +51,13 @@ describe('execute TVP write using promise interface', () => {
         });
         return connection.request()
           .input('poolToys', sql.TVP, tvp)
-          .execute('AddPoolToyTVP');
+          .execute('AddPoolToyTVP2');
       })
       .then((results) => {
         expect(results.returnValue).toEqual(0);
       })
       .then(delay(5000)) // allow all writes to be flushed from the buffer.
-      .then(() => connection.request().query('SELECT * FROM PoolParty.dbo.PoolToys'))
+      .then(() => connection.request().query('SELECT * FROM PoolParty.dbo.PoolToys2'))
       .then((results) => {
         expect(results.recordset.length).toEqual(10000);
       }),

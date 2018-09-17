@@ -7,6 +7,14 @@ const config = {
     server: 'localhost',
     database: 'PoolParty',
   },
+  // set due to this bug https://github.com/tediousjs/node-mssql/issues/457
+  // without this, jest will hang waiting for open handles to close
+  connectionPoolConfig: {
+    pool: {
+      evictionRunIntervalMillis: 500,
+      idleTimeoutMillis: 500,
+    },
+  },
   retries: 1,
   reconnects: 1,
 };
@@ -14,9 +22,7 @@ const config = {
 let connection;
 
 describe('other tests using callback interface', () => {
-  afterEach(() => {
-    connection.close();
-  });
+  afterEach(() => connection.close());
   it(`constructor accepts an optional callback which will trigger a warmup and
       call it afterwrard`, (done) => {
     connection = new sql.ConnectionPoolParty(config, () => {

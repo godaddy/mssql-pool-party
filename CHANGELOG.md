@@ -1,3 +1,61 @@
+# 0.3.0 (TBD)
+
+## Features
+
+- Upgrade node-mssql to `^4.2.1`. This paves the way for supporting Availability Groups (more testing needed on this front).
+- Better DEBUG logging
+- Added the following properties to the stats output: `config.appName`, `config.encrypt`.
+
+## Bug Fixes
+
+- Added workaround for https://github.com/tediousjs/node-mssql/issues/705 until it's fixed upstream. This isn't a bug in a previous version, but in node-mssql v4.
+
+## Breaking Changes
+
+- Since mssql-pool-party is a wrapper around node-mssql that aims to minimize interface changes, all breaking changes in node-mssql v4 are relevant to this new version, [see here for those changes](https://github.com/tediousjs/node-mssql/blob/7f374a8d73b00b17aa5b5ea5621c4314fc6e2daa/README.md#3x-to-4x-changes).
+- All responses from Request methods (query, execute, etc), for each style (promise, cb, stream), have been unified to match the changes made in v4. They all return a single object (and an error, if applicable). The result object will look something like the following (first example applies to callback/promise/async-await, second example applies to stream). See README.md for richer documentation.
+```
+{
+  output: {},
+  recordset: [{}],
+  recordsets: [
+    [{}],
+  ],
+  returnValue: 0,
+  rowsAffected: [],
+}
+```
+```
+{
+  columns: {
+    ColumnName: {},
+  },
+  output: {},
+  returnValue: 0,
+  rows: [{}],
+  rowsAffected: [],
+}
+```
+- Removed the following properties from the stats output: `config.driver`, `config.tdsVersion`, `timeouts.cancel`, 
+- Enable the `encrypt` driver options by default. Disabled by default has already been deprecated in `tedious` and will be removed in a newer version, we're just jumping ahead a little to get rid of an annoying console message. If you don't want encryption, use this config:
+```
+connectionPoolConfig: {
+  options: {
+    encrypt: false
+  }
+}
+```
+
+## Other
+
+- Upgrade jest and babel-jest from `^19.02` to `^23.6.0`
+- Removed jest-environment-node-debug and jest-unit from devDependencies
+- Enabled test coverage, dropped requirement to 75% (goal of 100% in future)
+- `sqlcmd` is now on the PATH inside the integration test Docker container
+- Fixed some bugs involved with running tests in parallel
+- Added missing stream tests
+- Added package-lock.json
+
 # 0.2.4 (November 13th, 2017)
 
 ## Bug Fixes

@@ -2,6 +2,7 @@ import AggregateError from 'aggregate-error';
 import * as sql from '../src';
 
 const queryResults = {
+  output: {},
   recordset: [
     { ID: 1, PartyAnimalName: 'Plato' },
     { ID: 2, PartyAnimalName: 'Socrates' },
@@ -11,7 +12,18 @@ const queryResults = {
     { ID: 6, PartyAnimalName: 'Diogenes' },
     { ID: 7, PartyAnimalName: 'Lycophron' },
   ],
-  returnValue: undefined,
+  recordsets: [
+    [
+      { ID: 1, PartyAnimalName: 'Plato' },
+      { ID: 2, PartyAnimalName: 'Socrates' },
+      { ID: 3, PartyAnimalName: 'Anaximander' },
+      { ID: 4, PartyAnimalName: 'Anaximenes' },
+      { ID: 5, PartyAnimalName: 'Speusippus' },
+      { ID: 6, PartyAnimalName: 'Diogenes' },
+      { ID: 7, PartyAnimalName: 'Lycophron' },
+    ],
+  ],
+  rowsAffected: [7],
 };
 
 let connection;
@@ -25,21 +37,26 @@ describe('query tests using callback interface', () => {
         server: 'localhost',
         database: 'PoolParty',
       },
+      // set due to this bug https://github.com/tediousjs/node-mssql/issues/457
+      // without this, jest will hang waiting for open handles to close
+      connectionPoolConfig: {
+        pool: {
+          evictionRunIntervalMillis: 500,
+          idleTimeoutMillis: 500,
+        },
+      },
       retries: 1,
       reconnects: 1,
     });
   });
-  afterEach(() => {
-    connection.close();
-  });
+  afterEach(() => connection.close());
   it('returns expected results with explicit warmup', (done) => {
     connection.warmup()
       .then(() => {
         expect(connection.pools[0].connection.connected).toEqual(true);
         connection.request()
-          .query('select * from PartyAnimals', (err, recordset, returnValue) => {
-            expect(recordset).toEqual(queryResults.recordset);
-            expect(returnValue).toEqual(queryResults.returnValue);
+          .query('select * from PartyAnimals', (err, result) => {
+            expect(result).toEqual(queryResults);
             done();
           });
       });
@@ -47,9 +64,8 @@ describe('query tests using callback interface', () => {
   it('returns expected results with implicit warmup', (done) => {
     expect(connection.pools.length).toEqual(0);
     connection.request()
-      .query('select * from PartyAnimals', (err, recordset, returnValue) => {
-        expect(recordset).toEqual(queryResults.recordset);
-        expect(returnValue).toEqual(queryResults.returnValue);
+      .query('select * from PartyAnimals', (err, result) => {
+        expect(result).toEqual(queryResults);
         done();
       });
   });
@@ -64,9 +80,8 @@ describe('query tests using callback interface', () => {
         // verify connection has been manually closed
         expect(connection.pools[0].connection.connected).toEqual(false);
         connection.request()
-          .query('select * from PartyAnimals', (err, recordset, returnValue) => {
-            expect(recordset).toEqual(queryResults.recordset);
-            expect(returnValue).toEqual(queryResults.returnValue);
+          .query('select * from PartyAnimals', (err, result) => {
+            expect(result).toEqual(queryResults);
             done();
           });
       });

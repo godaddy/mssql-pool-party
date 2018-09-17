@@ -17,6 +17,14 @@ describe('execute many writes tests using promise interface', () => {
         server: 'localhost',
         database: 'PoolParty',
       },
+      // set due to this bug https://github.com/tediousjs/node-mssql/issues/457
+      // without this, jest will hang waiting for open handles to close
+      connectionPoolConfig: {
+        pool: {
+          evictionRunIntervalMillis: 500,
+          idleTimeoutMillis: 500,
+        },
+      },
       retries: 1,
       reconnects: 1,
     });
@@ -24,14 +32,9 @@ describe('execute many writes tests using promise interface', () => {
   afterAll(() => {
     jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
   });
-  afterEach(done => connection.request()
+  afterEach(() => connection.request()
     .query('TRUNCATE TABLE PoolParty.dbo.PoolToys;')
-    .then(() => {
-      connection.close();
-      // need to give mssql ample time to clear the table so tests
-      // don't step on eachother
-      setTimeout(done, 2000);
-    }),
+    .then(() => connection.close()),
   );
   it('perform 10000 writes',
     () => connection.warmup()

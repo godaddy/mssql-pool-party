@@ -4,7 +4,7 @@ const debug = setDebug('mssql-pool-party');
 
 export default function requestMethodFailure(request, attempts, cb) {
   return (err) => {
-    debug('request failed!');
+    debug(`request ${request.id} failed!`);
     debug(err);
     if (typeof cb === 'function') {
       return cb(err);
