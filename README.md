@@ -118,7 +118,7 @@ export default function runQuery(id) {
 
 Check out the [detailed API documentation](API.md#new-connectionpoolpartyconfig).
 
-You'll also want to familiarize yourself with [`node-mssql`'s documentation](https://github.com/tediousjs/node-mssql/blob/7f374a8d73b00b17aa5b5ea5621c4314fc6e2daa/README.md#documentation), as much of it applies to mssql-pool-party.
+You'll also want to familiarize yourself with [`node-mssql`'s documentation](https://github.com/tediousjs/node-mssql/blob/master/README.md#documentation), as much of it applies to mssql-pool-party.
 
 ### Events
 

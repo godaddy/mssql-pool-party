@@ -15,6 +15,14 @@ describe('warmup race tests', () => {
         server: 'localhost',
         database: 'PoolParty',
       },
+      // set due to this bug https://github.com/tediousjs/node-mssql/issues/457
+      // without this, jest will hang waiting for open handles to close
+      connectionPoolConfig: {
+        pool: {
+          evictionRunIntervalMillis: 500,
+          idleTimeoutMillis: 500,
+        },
+      },
       reconnects: 1,
       connectionPoolFactory: factorySpy,
     });

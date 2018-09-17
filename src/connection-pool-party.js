@@ -55,13 +55,16 @@ const debug = setDebug('mssql-pool-party');
 *  you want to attach to the config provided when creating an mssql ConnectionPool. This is
 *  useful if you don't want to create a custom dsnProvider or connectionPoolFactory to modify
 *  the configuration used to create ConnectionPools. Just keep in mind that any config set here
-*  will override the config set in the dsnProvider. Check node-mssql README.md for more information.
+*  will override the config set in the dsnProvider. Check [node-mssql README.md](https://github.com/tediousjs/node-mssql/blob/master/README.md#general-same-for-all-drivers)
+*  for more information.
 * @param {object} [config.connectionPoolConfig.options] - An object containing any configuration
 *  you want to pass all the way to driver used by node-mssql, e.g. appName, encrypt, etc.
-*  Check node-mssql README.md for more information.
+*  Check [node-mssql README.md](https://github.com/tediousjs/node-mssql/blob/master/README.md#tedious)
+*  for more information.
 * @param {object} [config.connectionPoolConfig.pool] - An object containing any configuration
 *  you want to pass to the pool implementation internal to node-mssql, e.g. max, min,
-*  idleTimeout, etc. Check node-mssql README.md for more information.
+*  idleTimeout, etc. Check [node-mssql README.md](https://github.com/tediousjs/node-mssql/blob/master/README.md#general-same-for-all-drivers)
+* for more information.
 * @param {boolean} [config.prioritizePools] - A flag to enable pool prioritization behavior.
 *  If you enable this behavior, your dsns must have a numeric priority property.
 *  The lower the number, the higher the priority of the dsn, starting at 0.
@@ -107,12 +110,6 @@ export default class ConnectionPoolParty extends EventEmitter {
       (() => Promise.resolve(this.config.dsns || [this.config.dsn]));
     this.connectionPoolFactory = this.config.connectionPoolFactory ||
       defaultConnectionPoolFactory;
-    // need to default to a low idle/eviction timeout for node-mssql's pool implementation
-    // due to this: https://github.com/tediousjs/node-mssql/issues/457
-    this.connectionPoolPoolConfigDefaults = {
-      evictionRunIntervalMillis: 500,
-      idleTimeoutMillis: 500,
-    };
     // we need a way to set mssql ConnectionPool config properties without
     // having to specify a custom dsnProvider or connecitonPoolFactory. this
     // gives us that.
@@ -122,10 +119,6 @@ export default class ConnectionPoolParty extends EventEmitter {
     this.connectionPoolConfig.options = {
       encrypt: true,
       ...this.connectionPoolConfig.options,
-    };
-    this.connectionPoolConfig.pool = {
-      ...this.connectionPoolPoolConfigDefaults,
-      ...this.connectionPoolConfig.pool,
     };
     this.warmupStrategy = this.config.warmupStrategy || raceWarmupStrategy;
     this._warmupPromise = null;
@@ -484,7 +477,7 @@ export default class ConnectionPoolParty extends EventEmitter {
       return Promise.resolve(false);
     }
     // get any updated dsn info from the provider
-    this._healingPromise = this._healingPromise || Promise.resolve()
+    this._healingPromise = this._healingPromise || (Promise.resolve()
       .then(() => debug('healing started, retrieving new dsns from provider'))
       .then(() => this.dsnProvider())
       .then(addDefaultDsnProperties)
@@ -512,7 +505,7 @@ export default class ConnectionPoolParty extends EventEmitter {
         this._healingPromise = null;
         debug(`healing complete, any pools healed? ${anyPoolsHealed}`);
         return anyPoolsHealed;
-      });
+      }));
     return this._healingPromise;
   }
 

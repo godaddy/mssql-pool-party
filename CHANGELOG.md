@@ -36,7 +36,6 @@
   rowsAffected: [],
 }
 ```
-- Pool inside `node-mssql`'s ConnectionPool now defaults both `evictionRunIntervalMillis` and `idleTimeoutMillis` to `500ms` (original defaults were `1000ms` and `30000ms` respectively). Can be overridden by modifying `connectionPoolConfig.pool.X`.
 - Removed the following properties from the stats output: `config.driver`, `config.tdsVersion`, `timeouts.cancel`, 
 - Enable the `encrypt` driver options by default. Disabled by default has already been deprecated in `tedious` and will be removed in a newer version, we're just jumping ahead a little to get rid of an annoying console message. If you don't want encryption, use this config:
 ```

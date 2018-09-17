@@ -8,15 +8,15 @@
     "src/"
   ],
   "scripts": {
-    "build": "node_modules/.bin/babel src --out-dir dist --ignore test.js --source-maps --copy-files",
+    "build": "babel src --out-dir dist --ignore test.js --source-maps --copy-files",
     "coverage": "open coverage/lcov-report/index.html",
     "docs": "jsdoc2md --configure jsdoc.json src/**/*.js > API.md",
-    "lint": "node_modules/.bin/eslint src test --fix",
-    "test": "npm run lint && node_modules/.bin/jest src/*",
+    "lint": "eslint src test --fix",
+    "test": "npm run lint && jest src/*",
     "test:docker": "./test/start-mssql.sh",
-    "test:integration": "node --trace-warnings node_modules/.bin/jest test/*",
-    "test:integration-debug": "node --debug-brk --inspect node_modules/.bin/jest --runInBand -i test/*",
-    "test:all": "npm run lint && node_modules/.bin/jest",
+    "test:integration": "node --trace-warnings jest test/*",
+    "test:integration-debug": "node --debug-brk --inspect jest --runInBand -i test/*",
+    "test:all": "npm run lint && jest",
     "prepublishOnly": "npm run lint && npm run test && npm run docs && npm run build",
     "pretest": "echo 'Most of our testing is done via integration tests. See package.json for more information.'"
   },

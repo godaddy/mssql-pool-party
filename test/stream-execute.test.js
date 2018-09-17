@@ -41,6 +41,12 @@ describe('execute (stored procedures) tests using stream interface', () => {
       },
       connectionPoolConfig: {
         stream: true,
+        // set due to this bug https://github.com/tediousjs/node-mssql/issues/457
+        // without this, jest will hang waiting for open handles to close
+        pool: {
+          evictionRunIntervalMillis: 500,
+          idleTimeoutMillis: 500,
+        },
       },
       retries: 1,
       reconnects: 1,

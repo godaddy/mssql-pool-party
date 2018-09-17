@@ -28,6 +28,14 @@ describe('prioritized pools tests', () => {
           priority: 0,
         },
       ],
+      // set due to this bug https://github.com/tediousjs/node-mssql/issues/457
+      // without this, jest will hang waiting for open handles to close
+      connectionPoolConfig: {
+        pool: {
+          evictionRunIntervalMillis: 500,
+          idleTimeoutMillis: 500,
+        },
+      },
       prioritizePools: true,
       // this helps prevent warmup from resolving before all the pools are created
       warmupStrategy: serialWarmupStrategy,
