@@ -1,4 +1,4 @@
-# 0.3.0 (TBD)
+# 0.3.0 (September 17, 2018)
 
 ## Features
 
