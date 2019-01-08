@@ -1,6 +1,6 @@
 {
   "name": "mssql-pool-party",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Extension of mssql that provides management of multiple connection pools, dsns, retries, and more",
   "main": "dist/index.js",
   "files": [
@@ -14,8 +14,8 @@
     "lint": "eslint src test --fix",
     "test": "npm run lint && jest src/*",
     "test:docker": "./test/start-mssql.sh",
-    "test:integration": "node --trace-warnings jest test/*",
-    "test:integration-debug": "node --debug-brk --inspect jest --runInBand -i test/*",
+    "test:integration": "node --trace-warnings node_modules/.bin/jest test/*",
+    "test:integration-debug": "node --debug-brk --inspect node_modules/.bin/jest --runInBand -i test/*",
     "test:all": "npm run lint && jest",
     "prepublishOnly": "npm run lint && npm run test:all && npm run docs && npm run build",
     "pretest": "echo 'Most of our testing is done via integration tests. See package.json for more information.'"
@@ -36,7 +36,7 @@
     "aggregate-error": "^1.0.0",
     "debug": "^2.6.3",
     "lodash.partial": "^4.2.1",
-    "mssql": "^4.2.1",
+    "mssql": "^4.3.0",
     "promise-reduce": "^2.1.0",
     "promise-retry": "^1.1.1",
     "uuid": "^3.3.2"

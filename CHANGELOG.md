@@ -1,3 +1,9 @@
+# 0.3.1 (January 8, 2019)
+
+## Features
+
+- Upgrade node-mssql to `^4.3.0`.
+
 # 0.3.0 (September 17, 2018)
 
 ## Features
