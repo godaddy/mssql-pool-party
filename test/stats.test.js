@@ -28,7 +28,7 @@ const statsAfterWarmup = {
     timeouts: {
       connect: 5000,
       request: 30000,
-      poolIdle: 500,
+      poolIdle: 30000,
     },
   }, {
     health: {
@@ -56,7 +56,7 @@ const statsAfterWarmup = {
     timeouts: {
       connect: 5000,
       request: 30000,
-      poolIdle: 500,
+      poolIdle: 30000,
     },
   }],
   healing: false,
@@ -91,12 +91,6 @@ describe('stats tests', () => {
           readOnlyIntent: false,
           encrypt: false,
           appName: 'mssql-pool-party-tests',
-        },
-        // set due to this bug https://github.com/tediousjs/node-mssql/issues/457
-        // without this, jest will hang waiting for open handles to close
-        pool: {
-          evictionRunIntervalMillis: 500,
-          idleTimeoutMillis: 500,
         },
       },
     });
