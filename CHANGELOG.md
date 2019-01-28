@@ -1,3 +1,9 @@
+# 0.3.2 (January 28, 2019)
+
+## Bug Fixes
+
+- Properly close unhealthy connections ([PR #7](https://github.com/godaddy/mssql-pool-party/pull/7), thanks @DullReferenceException!)
+
 # 0.3.1 (January 8, 2019)
 
 ## Features
