@@ -549,6 +549,7 @@ export default class ConnectionPoolParty extends EventEmitter {
           pool.healCount += 1;
           this.pools.splice(unhealthyPoolIndex, 1, pool);
           debug(`pool ${unhealthyPool.dsn.id} healed`);
+          unhealthyPool.connection.close();
           return true;
         },
         err => err,
