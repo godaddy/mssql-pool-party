@@ -524,6 +524,7 @@ export default class ConnectionPoolParty extends EventEmitter {
     if (!updatedDsn) {
       // remove unhealthy pool, it cannot be healed
       this.pools.splice(unhealthyPoolIndex, 1);
+      unhealthyPool.connection.close();
       return Promise.resolve(new Error(`
         Attempted to heal pool but could not find matching DSN.
         The dsnProvider is no longer providing a DSN with id ${unhealthyPool.dsn.id}.
