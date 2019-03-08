@@ -5,7 +5,7 @@ import delay from '../delay';
 
 let connection;
 
-describe('failover tests', () => {
+describe('priority/promotion tests', () => {
   jest.setTimeout(60000);
   beforeEach(async () => {
     await execa('sh', ['test/start-mssql.sh', 'skip-build']);
