@@ -1,3 +1,23 @@
+# 0.4.0 (March ??, 2019)
+
+## Features
+
+- New `healthy` property in pool stats which indicates whether or not a pool was capable of serving requests _since the last request was served_. This means that the secondary pool could show as healthy but actually be unhealthy because it hasn't served any requests recently. If the primary pool shows as healthy, it's likely in a healthy state if it's receiving any semblance of traffic.
+- New `acquireTimeoutMillis` and `createTimeoutMillis` properties added to pool stats. These are the timeouts used by the `tarn` pool inside the `mssql` package.
+
+## Bug Fixes
+
+- No more stuck requests, resource churn, and broken failover when a database goes down. `0.3.*` suffered from a bug in the `mssql` package due to some unexpected/broken behavior in `generic-pool`. `mssql` was bumped to `6.0.0-alpha.2`, which replaced `generic-pool` with `tarn`.
+- The `lastPromotionAt` and `lastHealAt` stats should propagate to new pools after a heal.
+
+## Breaking Changes
+
+- Bumped `mssql` from `^4.3.0` to `6.0.0-alpha.2`. We do not believe there are any breaking changes in `mssql-pool-party` for this upgrade, but the `mssql` bump brings with it bumps in the `tedious` driver and other internal changes which could be impacting. That, coupled with the alpha state of `mssql` means we're doing a major bump to be safe.
+
+## Other
+
+- Improved integration tests to handle failover, healing, and promotion scenarios by introducing a second mssql container.
+
 # 0.3.2 (January 28, 2019)
 
 ## Bug Fixes

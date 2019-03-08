@@ -1,19 +1,34 @@
 import AggregateError from 'aggregate-error';
-import * as sql from '../src';
+import * as sql from '../../src';
 
-const procResults = {
+const queryResults = {
   output: {},
-  recordset: [{ ID: 6, PartyAnimalName: 'Diogenes' }],
-  recordsets: [
-    [{ ID: 6, PartyAnimalName: 'Diogenes' }],
+  recordset: [
+    { ID: 1, PartyAnimalName: 'Plato' },
+    { ID: 2, PartyAnimalName: 'Socrates' },
+    { ID: 3, PartyAnimalName: 'Anaximander' },
+    { ID: 4, PartyAnimalName: 'Anaximenes' },
+    { ID: 5, PartyAnimalName: 'Speusippus' },
+    { ID: 6, PartyAnimalName: 'Diogenes' },
+    { ID: 7, PartyAnimalName: 'Lycophron' },
   ],
-  returnValue: 0,
-  rowsAffected: [],
+  recordsets: [
+    [
+      { ID: 1, PartyAnimalName: 'Plato' },
+      { ID: 2, PartyAnimalName: 'Socrates' },
+      { ID: 3, PartyAnimalName: 'Anaximander' },
+      { ID: 4, PartyAnimalName: 'Anaximenes' },
+      { ID: 5, PartyAnimalName: 'Speusippus' },
+      { ID: 6, PartyAnimalName: 'Diogenes' },
+      { ID: 7, PartyAnimalName: 'Lycophron' },
+    ],
+  ],
+  rowsAffected: [7],
 };
 
 let connection;
 
-describe('execute (stored procedures) tests using callback interface', () => {
+describe('query tests using callback interface', () => {
   beforeEach(() => {
     connection = new sql.ConnectionPoolParty({
       dsn: {
@@ -32,9 +47,8 @@ describe('execute (stored procedures) tests using callback interface', () => {
       .then(() => {
         expect(connection.pools[0].connection.connected).toEqual(true);
         connection.request()
-          .input('ID', sql.Int, 6)
-          .execute('GetPartyAnimalByID', (err, result) => {
-            expect(result).toEqual(procResults);
+          .query('select * from PartyAnimals', (err, result) => {
+            expect(result).toEqual(queryResults);
             done();
           });
       });
@@ -42,9 +56,8 @@ describe('execute (stored procedures) tests using callback interface', () => {
   it('returns expected results with implicit warmup', (done) => {
     expect(connection.pools.length).toEqual(0);
     connection.request()
-      .input('ID', sql.Int, 6)
-      .execute('GetPartyAnimalByID', (err, result) => {
-        expect(result).toEqual(procResults);
+      .query('select * from PartyAnimals', (err, result) => {
+        expect(result).toEqual(queryResults);
         done();
       });
   });
@@ -59,9 +72,8 @@ describe('execute (stored procedures) tests using callback interface', () => {
         // verify connection has been manually closed
         expect(connection.pools[0].connection.connected).toEqual(false);
         connection.request()
-          .input('ID', sql.Int, 6)
-          .execute('GetPartyAnimalByID', (err, result) => {
-            expect(result).toEqual(procResults);
+          .query('select * from PartyAnimals', (err, result) => {
+            expect(result).toEqual(queryResults);
             done();
           });
       });
@@ -77,8 +89,7 @@ describe('execute (stored procedures) tests using callback interface', () => {
         // verify connection has been manually closed
         expect(connection.pools[0].connection.connected).toEqual(false);
         connection.request({ reconnects: 0 })
-          .input('ID', sql.Int, 6)
-          .execute('GetPartyAnimalByID', (err) => {
+          .query('select * from PartyAnimals', (err) => {
             expect(err).toBeInstanceOf(AggregateError);
             done();
           });

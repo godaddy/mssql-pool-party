@@ -1,5 +1,5 @@
-import defaultConnectionPoolFactory from '../src/default-connection-pool-factory';
-import * as sql from '../src';
+import defaultConnectionPoolFactory from '../../src/default-connection-pool-factory';
+import * as sql from '../../src';
 
 let connection;
 const factorySpy = jest.fn(defaultConnectionPoolFactory);

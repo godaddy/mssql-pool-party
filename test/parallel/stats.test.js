@@ -1,5 +1,5 @@
-import * as sql from '../src';
-import delay from './delay';
+import * as sql from '../../src';
+import delay from '../delay';
 
 const statsAfterWarmup = {
   pools: [{
@@ -9,6 +9,7 @@ const statsAfterWarmup = {
       lastHealAt: undefined,
       lastPromotionAt: undefined,
       healCount: 0,
+      healthy: true,
       promotionCount: 0,
       retryCount: 0,
     },
@@ -22,18 +23,22 @@ const statsAfterWarmup = {
       appName: 'mssql-pool-party-tests',
       encrypt: false,
       readOnlyIntent: false,
+      priority: undefined,
       poolMin: 0,
       poolMax: 10,
     },
     timeouts: {
       connect: 5000,
       request: 30000,
+      poolAcquire: 30000,
+      poolCreate: 30000,
       poolIdle: 30000,
     },
   }, {
     health: {
       connected: true,
       connecting: false,
+      healthy: true,
       lastHealAt: undefined,
       lastPromotionAt: undefined,
       healCount: 0,
@@ -50,12 +55,15 @@ const statsAfterWarmup = {
       appName: 'mssql-pool-party-tests',
       encrypt: false,
       readOnlyIntent: false,
+      priority: undefined,
       poolMin: 0,
       poolMax: 10,
     },
     timeouts: {
       connect: 5000,
       request: 30000,
+      poolAcquire: 30000,
+      poolCreate: 30000,
       poolIdle: 30000,
     },
   }],

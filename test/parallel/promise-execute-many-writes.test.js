@@ -1,5 +1,5 @@
-import * as sql from '../src';
-import delay from './delay';
+import * as sql from '../../src';
+import delay from '../delay';
 
 let connection;
 

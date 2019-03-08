@@ -12,11 +12,13 @@
     "coverage": "open coverage/lcov-report/index.html",
     "docs": "jsdoc2md --configure jsdoc.json src/**/*.js > API.md",
     "lint": "eslint src test --fix",
-    "test": "npm run lint && jest src/*",
+    "test": "npm run lint && jest src/* && npm run test:coverage",
+    "test:all": "rm -rf coverage && npm run lint && npm run test:unit && npm run test:docker && npm run test:integration && npm run test:coverage && npm run test:docker-stop",
+    "test:coverage": "nyc report --reporter=text -t coverage --check-coverage --branches 75 --functions 75 --lines 75 --statements 75",
     "test:docker": "./test/start-mssql.sh",
-    "test:integration": "node --trace-warnings node_modules/.bin/jest test/*",
-    "test:integration-debug": "node --debug-brk --inspect node_modules/.bin/jest --runInBand -i test/*",
-    "test:all": "npm run lint && jest",
+    "test:docker-stop": "./test/stop-mssql.sh",
+    "test:integration": "node --trace-warnings node_modules/.bin/jest test/parallel/* && mv coverage/coverage-final.json coverage/coverage-integration-parallel.json && node --trace-warnings node_modules/.bin/jest test/serial/index.test.js && mv coverage/coverage-final.json coverage/coverage-integration-serial.json",
+    "test:unit": "jest src/* && mv coverage/coverage-final.json coverage/coverage-unit.json",
     "prepublishOnly": "npm run lint && npm run test:all && npm run docs && npm run build",
     "pretest": "echo 'Most of our testing is done via integration tests. See package.json for more information.'"
   },
@@ -36,7 +38,7 @@
     "aggregate-error": "^1.0.0",
     "debug": "^2.6.3",
     "lodash.partial": "^4.2.1",
-    "mssql": "^4.3.0",
+    "mssql": "6.0.0-alpha.2",
     "promise-reduce": "^2.1.0",
     "promise-retry": "^1.1.1",
     "uuid": "^3.3.2"
@@ -55,9 +57,11 @@
     "eslint-plugin-import": "^2.2.0",
     "eslint-plugin-jsx-a11y": "^4.0.0",
     "eslint-plugin-react": "^6.9.0",
+    "execa": "^1.0.0",
     "jest": "^23.6.0",
     "jsdoc-babel": "^0.3.0",
-    "jsdoc-to-markdown": "^3.0.0"
+    "jsdoc-to-markdown": "^3.0.0",
+    "nyc": "^13.3.0"
   },
   "babel": {
     "presets": [
@@ -76,16 +80,11 @@
     "collectCoverageFrom": [
       "src/**/*.js"
     ],
-    "coverageThreshold": {
-      "global": {
-        "branches": 75,
-        "functions": 75,
-        "lines": 75,
-        "statements": 75
-      }
-    },
     "coveragePathIgnorePatterns": [
       "\\.test\\.js$"
+    ],
+    "coverageReporters": [
+      "json"
     ],
     "roots": [
       "<rootDir>/src/",
