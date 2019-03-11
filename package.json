@@ -1,6 +1,6 @@
 {
   "name": "mssql-pool-party",
-  "version": "0.3.2",
+  "version": "0.4.0",
   "description": "Extension of mssql that provides management of multiple connection pools, dsns, retries, and more",
   "main": "dist/index.js",
   "files": [
