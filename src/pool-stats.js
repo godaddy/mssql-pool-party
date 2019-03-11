@@ -12,6 +12,7 @@ export default function poolStats(pool) {
   const {
     connecting,
     connected,
+    healthy,
   } = pool.connection;
   const {
     user,
@@ -31,12 +32,15 @@ export default function poolStats(pool) {
   const {
     max,
     min,
+    acquireTimeoutMillis,
+    createTimeoutMillis,
     idleTimeoutMillis,
-  } = (pool.connection.pool && pool.connection.pool._config) || {};
+  } = (pool.connection.pool || {});
   return {
     health: {
       connected,
       connecting,
+      healthy,
       lastHealAt,
       lastPromotionAt,
       healCount,
@@ -60,6 +64,8 @@ export default function poolStats(pool) {
     timeouts: {
       connect: connectTimeout,
       request: requestTimeout,
+      poolAcquire: acquireTimeoutMillis,
+      poolCreate: createTimeoutMillis,
       poolIdle: idleTimeoutMillis,
     },
   };

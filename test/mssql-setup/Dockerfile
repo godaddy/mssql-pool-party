@@ -7,9 +7,10 @@ WORKDIR /usr/src/app
 # Bundle app source
 COPY . /usr/src/app
 
-# Grant permissions for the import-data script to be executable
+# Grant permissions for the scripts to be executable
+RUN chmod +x /usr/src/app/entrypoint.sh
 RUN chmod +x /usr/src/app/import-data.sh
 
 RUN echo 'export "PATH=$PATH:/opt/mssql-tools/bin"' >> /root/.bashrc
 
-CMD /bin/bash ./entrypoint.sh
+ENTRYPOINT [ "/usr/src/app/entrypoint.sh" ]

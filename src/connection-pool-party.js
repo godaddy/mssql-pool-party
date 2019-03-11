@@ -278,6 +278,16 @@ export default class ConnectionPoolParty extends EventEmitter {
     if (attempts.success) {
       return attempts;
     }
+    // node-mssql has flagged the pool as unhealthy
+    // the pool needs to go through a reconnect/heal before it's used
+    if (!pool.connection.healthy) {
+      debug('request (%s) failed for pool %s because pool.connection is flagged unhealthy', request.id, pool.dsn.id);
+      attempts.poolIndex = poolIndex;
+      attempts.tryNumber = 0;
+      attempts.attemptNumber += 1;
+      attempts.unhealthyPools.push(pool);
+      return attempts;
+    }
     return promiseRetry(
       { retries: options.retries },
       (retry, tryNumber) => {
@@ -414,7 +424,7 @@ export default class ConnectionPoolParty extends EventEmitter {
           // if any succeeded
           .then(() => {
             if (attempts.success) {
-              // if one of the failover pools suceeded, promote it to primary
+              // if one of the failover pools succeeded, promote it to primary
               if (attempts.poolIndex > 0) {
                 this._promotePool(attempts.poolIndex);
               }
@@ -592,7 +602,11 @@ export default class ConnectionPoolParty extends EventEmitter {
       return;
     }
     const unhealthyPriorityPools = higherPriorityPools.filter(
-      pool => !pool.connection.connecting && !pool.connection.connected,
+      pool => !pool.connection.healthy ||
+        (
+          !pool.connection.connecting &&
+          !pool.connection.connected
+        ),
     );
     this._prioritizePromise = this._prioritizePromise || Promise.resolve(unhealthyPriorityPools)
       .then((unhealthyPools) => {

@@ -1,4 +1,4 @@
-import * as sql from '../src';
+import * as sql from '../../src';
 
 const config = {
   dsn: {

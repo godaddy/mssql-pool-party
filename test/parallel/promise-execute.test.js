@@ -1,5 +1,5 @@
 import AggregateError from 'aggregate-error';
-import * as sql from '../src';
+import * as sql from '../../src';
 
 const procResults = {
   output: {},

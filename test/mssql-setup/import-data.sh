@@ -8,4 +8,4 @@ sleep 20s
 /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P PoolPartyyy9000 -d master -i setup.sql
 
 #import the data from the csv file
-/opt/mssql-tools/bin/bcp PoolParty.dbo.PartyAnimals in "/usr/src/app/party-animals.csv" -c -t',' -S localhost -U sa -P PoolPartyyy9000
+/opt/mssql-tools/bin/bcp PoolParty.dbo.PartyAnimals in "/usr/src/app/party-animals-${1}.csv" -c -t',' -S localhost -U sa -P PoolPartyyy9000

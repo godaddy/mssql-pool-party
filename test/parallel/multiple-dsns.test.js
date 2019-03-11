@@ -1,6 +1,6 @@
 import AggregateError from 'aggregate-error';
-import * as sql from '../src';
-import delay from './delay';
+import * as sql from '../../src';
+import delay from '../delay';
 
 let connection;
 

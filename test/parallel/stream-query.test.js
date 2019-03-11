@@ -1,6 +1,6 @@
-import * as sql from '../src';
+import * as sql from '../../src';
 
-const procResults = {
+const queryResults = {
   columns: {
     ID: {
       index: 0,
@@ -23,14 +23,21 @@ const procResults = {
     },
   },
   output: {},
-  returnValue: 0,
-  rows: [{ ID: 6, PartyAnimalName: 'Diogenes' }],
-  rowsAffected: [],
+  rows: [
+    { ID: 1, PartyAnimalName: 'Plato' },
+    { ID: 2, PartyAnimalName: 'Socrates' },
+    { ID: 3, PartyAnimalName: 'Anaximander' },
+    { ID: 4, PartyAnimalName: 'Anaximenes' },
+    { ID: 5, PartyAnimalName: 'Speusippus' },
+    { ID: 6, PartyAnimalName: 'Diogenes' },
+    { ID: 7, PartyAnimalName: 'Lycophron' },
+  ],
+  rowsAffected: [7],
 };
 
 let connection;
 
-describe('execute (stored procedures) tests using stream interface', () => {
+describe('query tests using stream interface', () => {
   beforeEach(() => {
     connection = new sql.ConnectionPoolParty({
       dsn: {
@@ -47,7 +54,7 @@ describe('execute (stored procedures) tests using stream interface', () => {
     });
   });
   afterEach(() => connection.close());
-  it('emits expected results with explicit warmup', (done) => {
+  it('returns expected results with explicit warmup', (done) => {
     let attempt = 0;
     let results;
     let errors;
@@ -60,8 +67,7 @@ describe('execute (stored procedures) tests using stream interface', () => {
       .then(() => {
         expect(connection.pools[0].connection.connected).toEqual(true);
         const request = connection.request();
-        request.input('ID', sql.Int, 6);
-        request.execute('GetPartyAnimalByID');
+        request.query('select * from PartyAnimals');
         request.on('recordset', (columns, attemptNumber) => {
           if (attemptNumber > attempt) {
             setResults(attemptNumber);
@@ -84,12 +90,13 @@ describe('execute (stored procedures) tests using stream interface', () => {
           Object.assign(results, result);
           expect(attemptNumber).toBe(1);
           expect(errors.length).toBe(0);
-          expect(results).toEqual(procResults);
+          expect(results).toEqual(queryResults);
           done();
         });
       });
   });
-  it('emits expected results with implicit warmup', (done) => {
+  it('returns expected results with implicit warmup', (done) => {
+    expect(connection.pools.length).toEqual(0);
     let attempt = 0;
     let results;
     let errors;
@@ -98,10 +105,8 @@ describe('execute (stored procedures) tests using stream interface', () => {
       errors = [];
       results = { rows: [] };
     };
-    expect(connection.pools.length).toEqual(0);
     const request = connection.request();
-    request.input('ID', sql.Int, 6);
-    request.execute('GetPartyAnimalByID');
+    request.query('select * from PartyAnimals');
     request.on('recordset', (columns, attemptNumber) => {
       if (attemptNumber > attempt) {
         setResults(attemptNumber);
@@ -124,11 +129,11 @@ describe('execute (stored procedures) tests using stream interface', () => {
       Object.assign(results, result);
       expect(attemptNumber).toBe(1);
       expect(errors.length).toBe(0);
-      expect(results).toEqual(procResults);
+      expect(results).toEqual(queryResults);
       done();
     });
   });
-  it('emits expected results after a reconnect', (done) => {
+  it('ends up with expected results after done event is emitted after a reconnect', (done) => {
     let attempt = 0;
     let results;
     let errors;
@@ -147,8 +152,7 @@ describe('execute (stored procedures) tests using stream interface', () => {
         // verify connection has been manually closed
         expect(connection.pools[0].connection.connected).toEqual(false);
         const request = connection.request();
-        request.input('ID', sql.Int, 6);
-        request.execute('GetPartyAnimalByID');
+        request.query('select * from PartyAnimals');
         request.on('recordset', (columns, attemptNumber) => {
           if (attemptNumber > attempt) {
             setResults(attemptNumber);
@@ -171,12 +175,12 @@ describe('execute (stored procedures) tests using stream interface', () => {
           Object.assign(results, result);
           expect(attemptNumber).toBe(3);
           expect(errors.length).toBe(0);
-          expect(results).toEqual(procResults);
+          expect(results).toEqual(queryResults);
           done();
         });
       });
   });
-  it('emits with expected error for an unhealthy connection and 0 reconnects', (done) => {
+  it('ends up with expected error after done event for an unhealthy connection and 0 reconnects', (done) => {
     let attempt = 0;
     let results;
     let errors;
@@ -208,9 +212,8 @@ describe('execute (stored procedures) tests using stream interface', () => {
       .then(() => {
         // verify connection has been manually closed
         expect(connection.pools[0].connection.connected).toEqual(false);
-        const request = connection.request();
-        request.input('ID', sql.Int, 6);
-        request.execute('GetPartyAnimalByID');
+        const request = connection.request({ reconnects: 0 });
+        request.query('select * from PartyAnimals');
         request.on('recordset', (columns, attemptNumber) => {
           if (attemptNumber > attempt) {
             setResults(attemptNumber);
@@ -230,6 +233,7 @@ describe('execute (stored procedures) tests using stream interface', () => {
           errors.push(err);
         });
         request.on('done', (result, attemptNumber) => {
+          Object.assign(results, result);
           expect(attemptNumber).toBe(2);
           expect(errors.length).toBe(1);
           done();
