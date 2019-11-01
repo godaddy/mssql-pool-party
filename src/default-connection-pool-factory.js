@@ -14,7 +14,7 @@ export default function defaultConnectionPoolFactory(dsn) {
       }),
       // even if we fail to connect, we still want to create the pool, so we
       // can attempt to heal it later on
-      err => ({
+      (err) => ({
         connection,
         dsn,
         error: err,

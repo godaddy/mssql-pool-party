@@ -169,7 +169,7 @@ describe('execute (stored procedures) tests using stream interface', () => {
         });
         request.on('done', (result, attemptNumber) => {
           Object.assign(results, result);
-          expect(attemptNumber).toBe(3);
+          expect(attemptNumber).toBe(2);
           expect(errors.length).toBe(0);
           expect(results).toEqual(procResults);
           done();
@@ -230,7 +230,7 @@ describe('execute (stored procedures) tests using stream interface', () => {
           errors.push(err);
         });
         request.on('done', (result, attemptNumber) => {
-          expect(attemptNumber).toBe(2);
+          expect(attemptNumber).toBe(1);
           expect(errors.length).toBe(1);
           done();
         });

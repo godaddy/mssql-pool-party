@@ -32,6 +32,5 @@ describe('warmup race tests', () => {
       // confirm primary is reconnected
       expect(connection.pools[0].connection.connected).toEqual(true);
       expect(factorySpy).toHaveBeenCalledTimes(1);
-    }),
-  );
+    }));
 });

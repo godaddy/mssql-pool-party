@@ -8,7 +8,9 @@ export default function requestMethodFailure(request, attempts, cb) {
     debug(err);
     if (typeof cb === 'function') {
       return cb(err);
-    } else if (request.stream) {
+    }
+    if (request.stream) {
+      request.emit('poolparty_error', err, attempts.attemptNumber);
       return request.emit('poolparty_done', undefined, attempts.attemptNumber);
     }
     throw err;
