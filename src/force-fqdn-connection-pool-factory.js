@@ -44,4 +44,3 @@ export default function forceFqdnConnectionPoolFactory(suffix) {
     return defaultConnectionPoolFactory(dsn);
   };
 }
-

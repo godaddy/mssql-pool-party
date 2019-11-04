@@ -132,6 +132,7 @@ export default class ConnectionPoolParty extends EventEmitter {
       this.warmup(cb);
     }
   }
+
   /**
   * Retrieve the dsn(s) from the dsnProvider, create and connect the ConnectionPool
   * instance(s) using the connectionPoolFactory. Returns a promise. Can be called
@@ -229,7 +230,7 @@ export default class ConnectionPoolParty extends EventEmitter {
   * @memberof module:connection-pool-party.ConnectionPoolParty
   * @method #close
   */
-  close = cb => Promise.all(
+  close = (cb) => Promise.all(
     this.pools.map((pool) => {
       debug('closing pool %s', pool.dsn.id);
       return pool.connection.close();
@@ -286,6 +287,7 @@ export default class ConnectionPoolParty extends EventEmitter {
       attempts.tryNumber = 0;
       attempts.attemptNumber += 1;
       attempts.unhealthyPools.push(pool);
+      attempts.errors.push(new PoolError(pool, `Request ${request.id} failed because connection is unhealthy.`));
       return attempts;
     }
     return promiseRetry(
@@ -316,23 +318,23 @@ export default class ConnectionPoolParty extends EventEmitter {
           });
       },
     )
-    .then(
-      (result) => {
+      .then(
+        (result) => {
         // the request succeeded, just record and return the results
-        attempts.success = result;
-        return attempts;
-      },
-      (err) => {
+          attempts.success = result;
+          return attempts;
+        },
+        (err) => {
         // the request failed, record the error and check to see
         // if the pool is unhealthy
-        debug('request (%s) failed for pool %s\n%O', request.id, pool.dsn.id, err);
-        attempts.errors.push(new PoolError(pool, err));
-        if (this._isPoolUnhealthy(pool, err)) {
-          attempts.unhealthyPools.push(pool);
-        }
-        return attempts;
-      },
-    );
+          debug('request (%s) failed for pool %s\n%O', request.id, pool.dsn.id, err);
+          attempts.errors.push(new PoolError(pool, err));
+          if (this._isPoolUnhealthy(pool, err)) {
+            attempts.unhealthyPools.push(pool);
+          }
+          return attempts;
+        },
+      );
   }
 
   _wrapRequest = (options, request) => {
@@ -444,12 +446,12 @@ export default class ConnectionPoolParty extends EventEmitter {
               });
           }),
       )
-      .then(
+        .then(
         // all done, process the results and return them using the correct
         // interface (promise, stream, or callback)
-        requestMethodSuccess(request, attempts, cb),
-        requestMethodFailure(request, attempts, cb),
-      );
+          requestMethodSuccess(request, attempts, cb),
+          requestMethodFailure(request, attempts, cb),
+        );
     };
   }
 
@@ -472,13 +474,11 @@ export default class ConnectionPoolParty extends EventEmitter {
     this.pools = [...this.pools.splice(poolIndex, 1), ...this.pools];
   }
 
-  _isErrorRetryable = (/* err */) =>
-    // TODO, need to identify which errors are retryable
-     true
+  // TODO, need to identify which errors are retryable
+  _isErrorRetryable = (/* err */) => true
 
-  _isPoolUnhealthy = (/* pool, err */) =>
-    // TODO, need to identify which pool states and errors indicate an unhealthy pool
-     true
+  // TODO, need to identify which pool states and errors indicate an unhealthy pool
+  _isPoolUnhealthy = (/* pool, err */) => true
 
   _healPools = (unhealthyPools) => {
     // if we don't have any unhealthy pools, just return
@@ -496,11 +496,11 @@ export default class ConnectionPoolParty extends EventEmitter {
         debug(`failed to retrieve updated dsns, using existing dsns to
           create new connections`);
         this.emit('error', err);
-        return this.pools.map(pool => pool.dsn);
+        return this.pools.map((pool) => pool.dsn);
       })
-      .then(dsns => Promise.all(
+      .then((dsns) => Promise.all(
         // take note, this._healPool never rejects, but it can resolve with errors
-        unhealthyPools.map(unhealthyPool => this._healPool(dsns, unhealthyPool)),
+        unhealthyPools.map((unhealthyPool) => this._healPool(dsns, unhealthyPool)),
       ))
       .then((results) => {
         let anyPoolsHealed = false;
@@ -520,7 +520,7 @@ export default class ConnectionPoolParty extends EventEmitter {
   }
 
   _healPool = (dsns, unhealthyPool) => {
-    const unhealthyPoolIndex = this.pools.findIndex(pool => pool.dsn.id === unhealthyPool.dsn.id);
+    const unhealthyPoolIndex = this.pools.findIndex((pool) => pool.dsn.id === unhealthyPool.dsn.id);
     if (unhealthyPoolIndex === -1) {
       // the unhealthy pool has already been removed from the pools collections,
       // so nothing needs to be done
@@ -530,7 +530,7 @@ export default class ConnectionPoolParty extends EventEmitter {
         a bug somewhere...
       `));
     }
-    const updatedDsn = dsns.find(dsn => dsn.id === unhealthyPool.dsn.id);
+    const updatedDsn = dsns.find((dsn) => dsn.id === unhealthyPool.dsn.id);
     if (!updatedDsn) {
       // remove unhealthy pool, it cannot be healed
       this.pools.splice(unhealthyPoolIndex, 1);
@@ -563,7 +563,7 @@ export default class ConnectionPoolParty extends EventEmitter {
           unhealthyPool.connection.close();
           return true;
         },
-        err => err,
+        (err) => err,
       );
   }
 
@@ -595,14 +595,14 @@ export default class ConnectionPoolParty extends EventEmitter {
       return;
     }
     const higherPriorityPools = this.pools.filter(
-      pool => pool.dsn.priority < firstPoolPriority,
+      (pool) => pool.dsn.priority < firstPoolPriority,
     );
     if (higherPriorityPools.length === 0) {
       debug('unexpected priority config on DSNs, unable to prioritize');
       return;
     }
     const unhealthyPriorityPools = higherPriorityPools.filter(
-      pool => !pool.connection.healthy ||
+      (pool) => !pool.connection.healthy ||
         (
           !pool.connection.connecting &&
           !pool.connection.connected

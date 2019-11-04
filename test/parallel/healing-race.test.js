@@ -35,6 +35,5 @@ describe('healing race tests', () => {
         // confirm primary is reconnected
         expect(connection.pools[0].connection.connected).toEqual(true);
         expect(connection.stats().pools[0].health.healCount).toEqual(1);
-      }),
-  );
+      }));
 });

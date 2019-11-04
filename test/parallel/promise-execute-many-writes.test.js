@@ -26,8 +26,7 @@ describe('execute many writes tests using promise interface', () => {
   });
   afterEach(() => connection.request()
     .query('TRUNCATE TABLE PoolParty.dbo.PoolToys;')
-    .then(() => connection.close()),
-  );
+    .then(() => connection.close()));
   it('perform 10000 writes',
     () => connection.warmup()
       .then(() => connection.request().query('SELECT * FROM PoolParty.dbo.PoolToys'))
@@ -40,19 +39,18 @@ describe('execute many writes tests using promise interface', () => {
         );
         return Promise.all(
           randomValues.map(
-            name => connection.request()
+            (name) => connection.request()
               .input('PoolToyName', sql.NVarChar, name)
               .execute('AddPoolToy'),
           ),
         );
       })
       .then((results) => {
-        expect(results.every(result => result.returnValue === 0)).toEqual(true);
+        expect(results.every((result) => result.returnValue === 0)).toEqual(true);
       })
       .then(delay(5000)) // allow all writes to be flushed from the buffer.
       .then(() => connection.request().query('SELECT * FROM PoolParty.dbo.PoolToys'))
       .then((results) => {
         expect(results.recordset.length).toEqual(10000);
-      }),
-  );
+      }));
 });

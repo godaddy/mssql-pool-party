@@ -24,8 +24,7 @@ describe('execute TVP write using promise interface', () => {
   });
   afterEach(() => connection.request()
     .query('TRUNCATE TABLE PoolParty.dbo.PoolToys2;')
-    .then(() => connection.close()),
-  );
+    .then(() => connection.close()));
   it('execute proc with TVP containing 10000 rows',
     () => connection.warmup()
       .then(() => connection.request().query('SELECT * FROM PoolParty.dbo.PoolToys2'))
@@ -52,6 +51,5 @@ describe('execute TVP write using promise interface', () => {
       .then(() => connection.request().query('SELECT * FROM PoolParty.dbo.PoolToys2'))
       .then((results) => {
         expect(results.recordset.length).toEqual(10000);
-      }),
-  );
+      }));
 });

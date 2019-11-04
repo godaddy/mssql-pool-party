@@ -1,3 +1,16 @@
+# 0.5.0 (November 4, 2019)
+
+No known breaking changes, but we're being cautious with a major version bump since so many packages were updated.
+
+## Maintenance
+
+- Updated all packages to latest
+- Linting fixes
+
+## Bug Fixes
+
+- Fixed error reporting on streams (not all errors were being emitted)
+
 # 0.4.0 (March 11, 2019)
 
 ## Features

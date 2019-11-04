@@ -4,7 +4,7 @@ export default function validateConfig(config) {
   if (!config) {
     throw new Error('config is a required parameter when instantiating ConnectionPoolParty');
   }
-  const dsnSourcesInConfig = Object.keys(config).filter(key => dsnSources.includes(key));
+  const dsnSourcesInConfig = Object.keys(config).filter((key) => dsnSources.includes(key));
   if (dsnSourcesInConfig.length === 0) {
     throw new Error(`One of the following config items is required: ${dsnSources.join(', ')}`);
   }

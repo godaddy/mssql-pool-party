@@ -2,7 +2,7 @@ import defaultConnectionPoolFactory from './default-connection-pool-factory';
 import forceFqdnConnectionPoolFactory from './force-fqdn-connection-pool-factory';
 
 jest.mock('./default-connection-pool-factory');
-defaultConnectionPoolFactory.mockImplementation(dsn => dsn);
+defaultConnectionPoolFactory.mockImplementation((dsn) => dsn);
 
 describe('force-fqdn-connection-pool-factory', () => {
   it('appends an fqdn suffix to a server that contains an instance', () => {
