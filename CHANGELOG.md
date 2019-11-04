@@ -1,3 +1,9 @@
+# 0.5.1 (November 4, 2019)
+
+## Bug Fixes
+
+- Added missing `@babel/runtime` dependency. `@babel/plugin-transform-runtime` was added in `0.5.0`, which expects `@babel/runtime` as a runtime dependency. 
+
 # 0.5.0 (November 4, 2019)
 
 No known breaking changes, but we're being cautious with a major version bump since so many packages were updated.
