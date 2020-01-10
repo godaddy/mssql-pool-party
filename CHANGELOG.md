@@ -1,3 +1,13 @@
+# 0.5.2 (January 10, 2020)
+
+## Features
+
+- defaultConnectionPoolFactory is now exported at the root of the module, making it easier to create a custom connection pool factory that extends the default behavior.
+
+## Security Fixes
+
+- Cleaned up some npm audit errors (all on devDependencies).
+
 # 0.5.1 (November 4, 2019)
 
 ## Bug Fixes
