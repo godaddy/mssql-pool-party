@@ -4,6 +4,7 @@
 
 import debug from 'debug';
 import ConnectionPoolParty from './connection-pool-party';
+import defaultConnectionPoolFactory from './default-connection-pool-factory';
 import forceFqdnConnectionPoolFactory from './force-fqdn-connection-pool-factory';
 
 // Send all debug() logs to stdout instead of stderr
@@ -13,4 +14,8 @@ debug.log = console.log.bind(console);
 // export everything from mssql since we aren't overwriting the existing interface
 export * from 'mssql';
 
-export { ConnectionPoolParty, forceFqdnConnectionPoolFactory };
+export {
+  ConnectionPoolParty,
+  defaultConnectionPoolFactory,
+  forceFqdnConnectionPoolFactory,
+};
