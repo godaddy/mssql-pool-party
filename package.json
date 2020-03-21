@@ -35,7 +35,7 @@
     "email": "gshively@godaddy.com"
   },
   "dependencies": {
-    "@babel/runtime": "^7.6.3",
+    "@babel/runtime": "^7.8.4",
     "aggregate-error": "^3.0.1",
     "debug": "^4.1.1",
     "lodash.partial": "^4.2.1",
