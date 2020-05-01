@@ -20,7 +20,9 @@
     "test:integration": "node --trace-warnings node_modules/.bin/jest test/parallel/* && mv coverage/coverage-final.json coverage/coverage-integration-parallel.json && node --trace-warnings node_modules/.bin/jest test/serial/index.test.js && mv coverage/coverage-final.json coverage/coverage-integration-serial.json",
     "test:unit": "jest src/* && mv coverage/coverage-final.json coverage/coverage-unit.json",
     "prepublishOnly": "npm run lint && npm run test:all && npm run docs && npm run build",
-    "pretest": "echo 'Most of our testing is done via integration tests. See package.json for more information.'"
+    "pretest": "echo 'Most of our testing is done via integration tests. See package.json for more information.'",
+    "snyk-protect": "snyk protect",
+    "prepare": "npm run snyk-protect"
   },
   "repository": "godaddy/mssql-pool-party",
   "keywords": [
@@ -42,7 +44,8 @@
     "mssql": "6.0.0-beta.1",
     "promise-reduce": "^2.1.0",
     "promise-retry": "^1.1.1",
-    "uuid": "^3.3.3"
+    "uuid": "^3.3.3",
+    "snyk": "^1.316.1"
   },
   "devDependencies": {
     "@babel/cli": "^7.6.4",
@@ -118,5 +121,6 @@
         }
       ]
     }
-  }
+  },
+  "snyk": true
 }
