@@ -39,7 +39,7 @@
     "aggregate-error": "^3.0.1",
     "debug": "^4.1.1",
     "lodash.partial": "^4.2.1",
-    "mssql": "6.0.0-beta.1",
+    "mssql": "7.0.0",
     "promise-reduce": "^2.1.0",
     "promise-retry": "^1.1.1",
     "uuid": "^3.3.3"
