@@ -5,11 +5,23 @@ if [ ! "$1" = "skip-build" ]; then
 fi
 
 if [ ! "$(docker inspect mssql-pool-party-test-1 -f '{{.State.Status}}' 2> /dev/null)"  = 'running' ]; then
-  docker run -e ACCEPT_EULA=Y -e SA_PASSWORD=PoolPartyyy9000 -p 1433:1433  --rm --name mssql-pool-party-test-1 -d mssql-pool-party-test 1
+  docker run \
+    -e ACCEPT_EULA=Y \
+    -e MSSQL_SA_PASSWORD=PoolPartyyy9000 \
+    -p 1433:1433 \
+    --rm \
+    --name mssql-pool-party-test-1 \
+    -d mssql-pool-party-test 1
 fi
 
 if [ ! "$(docker inspect mssql-pool-party-test-2 -f '{{.State.Status}}' 2> /dev/null)" = 'running' ]; then
-  docker run -e ACCEPT_EULA=Y -e SA_PASSWORD=PoolPartyyy9000 -p 1434:1433 --rm --name mssql-pool-party-test-2 -d mssql-pool-party-test 2
+  docker run \
+    -e ACCEPT_EULA=Y \
+    -e MSSQL_SA_PASSWORD=PoolPartyyy9000 \
+    -p 1434:1433 \
+    --rm \
+    --name mssql-pool-party-test-2 \
+    -d mssql-pool-party-test 2
 fi
 
 until docker logs mssql-pool-party-test-1 | grep -m 1 'Import complete.'; do sleep 1; done

@@ -14,6 +14,7 @@ describe('warmup race tests', () => {
         password: 'PoolPartyyy9000',
         server: 'localhost',
         database: 'PoolParty',
+        trustServerCertificate: true,
       },
       reconnects: 1,
       connectionPoolFactory: factorySpy,

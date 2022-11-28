@@ -36,6 +36,7 @@ describe('query tests using promise interface', () => {
         password: 'PoolPartyyy9000',
         server: 'localhost',
         database: 'PoolParty',
+        trustServerCertificate: true,
       },
       retries: 1,
       reconnects: 1,

@@ -11,6 +11,7 @@ describe('healing race tests', () => {
         password: 'PoolPartyyy9000',
         server: 'localhost',
         database: 'PoolParty',
+        trustServerCertificate: true,
       },
       reconnects: 1,
     });

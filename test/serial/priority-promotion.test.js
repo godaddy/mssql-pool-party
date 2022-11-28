@@ -17,6 +17,7 @@ describe('priority/promotion tests', () => {
         server: 'localhost',
         database: 'PoolParty',
         priority: 0,
+        trustServerCertificate: true,
       }, {
         id: 'pool2',
         user: 'sa',
@@ -25,6 +26,7 @@ describe('priority/promotion tests', () => {
         database: 'PoolParty',
         port: 1434,
         priority: 1,
+        trustServerCertificate: true,
       }],
       prioritizeInterval: 5000,
       prioritizePools: true,
