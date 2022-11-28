@@ -1,4 +1,6 @@
-FROM microsoft/mssql-server-linux:latest
+FROM mcr.microsoft.com/mssql/server:2022-latest
+
+USER root
 
 # Create app directory
 RUN mkdir -p /usr/src/app

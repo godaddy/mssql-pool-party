@@ -3,12 +3,9 @@ import delay from '../delay';
 
 let connection;
 
+jest.setTimeout(60_000);
+
 describe('execute many writes tests using promise interface', () => {
-  let originalTimeout;
-  beforeAll(() => {
-    originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 60000;
-  });
   beforeEach(() => {
     connection = new sql.ConnectionPoolParty({
       dsn: {
@@ -16,17 +13,22 @@ describe('execute many writes tests using promise interface', () => {
         password: 'PoolPartyyy9000',
         server: 'localhost',
         database: 'PoolParty',
+        trustServerCertificate: true,
       },
       retries: 1,
       reconnects: 1,
+      connectionPoolOptions: {
+        options: {
+          trustServerCertificate: true,
+        },
+      },
     });
   });
-  afterAll(() => {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
-  });
+
   afterEach(() => connection.request()
     .query('TRUNCATE TABLE PoolParty.dbo.PoolToys;')
     .then(() => connection.close()));
+
   it('perform 10000 writes',
     () => connection.warmup()
       .then(() => connection.request().query('SELECT * FROM PoolParty.dbo.PoolToys'))

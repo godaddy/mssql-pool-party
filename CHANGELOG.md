@@ -1,3 +1,10 @@
+# 1.0.0 (October 12, 2022)
+
+## Breaking
+
+- `mssql` dependency has been upgraded from 6.x to 9.x. See the [changelog](https://github.com/tediousjs/node-mssql/blob/master/CHANGELOG.txt) for that package for a list of changes that may be required to your configuration options.
+- Node >=14 is now required 
+
 # 0.5.2 (January 10, 2020)
 
 ## Features

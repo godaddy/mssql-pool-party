@@ -38,6 +38,7 @@ describe('execute (stored procedures) tests using stream interface', () => {
         password: 'PoolPartyyy9000',
         server: 'localhost',
         database: 'PoolParty',
+        trustServerCertificate: true,
       },
       connectionPoolConfig: {
         stream: true,
@@ -192,6 +193,7 @@ describe('execute (stored procedures) tests using stream interface', () => {
         password: 'PoolPartyyy9000',
         server: 'localhost',
         database: 'PoolParty',
+        trustServerCertificate: true,
       },
       connectionPoolConfig: {
         stream: true,

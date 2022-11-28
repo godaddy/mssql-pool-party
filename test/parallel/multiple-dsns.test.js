@@ -14,12 +14,14 @@ describe('multiple dsn tests', () => {
           password: 'PoolPartyyy9000',
           server: 'localhost',
           database: 'PoolParty',
+          trustServerCertificate: true,
         },
         {
           user: 'sa',
           password: 'PoolPartyyy9000',
           server: 'localhost',
           database: 'PoolParty',
+          trustServerCertificate: true,
         },
       ],
     });

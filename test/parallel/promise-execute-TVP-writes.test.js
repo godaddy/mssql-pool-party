@@ -1,14 +1,11 @@
 import * as sql from '../../src';
 import delay from '../delay';
 
+jest.setTimeout(60_000);
+
 let connection;
 
 describe('execute TVP write using promise interface', () => {
-  let originalTimeout;
-  beforeAll(() => {
-    originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 60000;
-  });
   beforeEach(() => {
     connection = new sql.ConnectionPoolParty({
       dsn: {
@@ -16,11 +13,14 @@ describe('execute TVP write using promise interface', () => {
         password: 'PoolPartyyy9000',
         server: 'localhost',
         database: 'PoolParty',
+        trustServerCertificate: true,
+      },
+      connectionPoolOptions: {
+        options: {
+          trustServerCertificate: true,
+        },
       },
     });
-  });
-  afterAll(() => {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
   });
   afterEach(() => connection.request()
     .query('TRUNCATE TABLE PoolParty.dbo.PoolToys2;')
