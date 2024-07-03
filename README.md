@@ -1,4 +1,4 @@
-# mssql-pool-party
+# @godaddy/mssql-pool-party
 
 ES6+ extension of [mssql](https://github.com/patriksimek/node-mssql) that provides:
 
@@ -23,7 +23,7 @@ Jump on in, the water's fine.
 
 ```js
 // my-db.js
-import sql from 'mssql-pool-party';
+import sql from '@godaddy/mssql-pool-party';
 
 const config = {
   // See configuration section below for more information
@@ -49,7 +49,7 @@ export default connection;
 
 ```js
 // call-proc.js
-import sql from 'mssql-pool-party';
+import sql from '@godaddy/mssql-pool-party';
 import myDb from './my-db';
 
 export default function callProc() {
@@ -65,7 +65,7 @@ export default function callProc() {
 
 ```js
 // my-db.js
-import sql from 'mssql-pool-party';
+import sql from '@godaddy/mssql-pool-party';
 import jsonFileDsnProvider from 'my-example-dsn-provider';
 
 // grab DSN(s) from a json file
@@ -102,7 +102,7 @@ export default connection;
 
 ```js
 // run-query.js
-import sql from 'mssql-pool-party';
+import sql from '@godaddy/mssql-pool-party';
 import myDb from './my-db';
 
 export default function runQuery(id) {

@@ -6,9 +6,6 @@
     * [.ConnectionPoolParty](#module_connection-pool-party.ConnectionPoolParty) ⇐ <code>EventEmitter</code>
         * [new ConnectionPoolParty(config, [cb])](#new_module_connection-pool-party.ConnectionPoolParty_new)
         * [.warmup([cb])](#module_connection-pool-party.ConnectionPoolParty+warmup) ⇒ <code>Promise</code>
-        * [.request()](#module_connection-pool-party.ConnectionPoolParty+request) ⇒ <code>mssql.Request</code>
-        * [.close([cb])](#module_connection-pool-party.ConnectionPoolParty+close) ⇒ <code>Promise</code>
-        * [.stats()](#module_connection-pool-party.ConnectionPoolParty+stats) ⇒ <code>Object</code>
     * [.forceFqdnConnectionPoolFactory(suffix)](#module_connection-pool-party.forceFqdnConnectionPoolFactory) ⇒ <code>Promise</code>
 
 <a name="module_connection-pool-party.ConnectionPoolParty"></a>
@@ -20,9 +17,6 @@
 * [.ConnectionPoolParty](#module_connection-pool-party.ConnectionPoolParty) ⇐ <code>EventEmitter</code>
     * [new ConnectionPoolParty(config, [cb])](#new_module_connection-pool-party.ConnectionPoolParty_new)
     * [.warmup([cb])](#module_connection-pool-party.ConnectionPoolParty+warmup) ⇒ <code>Promise</code>
-    * [.request()](#module_connection-pool-party.ConnectionPoolParty+request) ⇒ <code>mssql.Request</code>
-    * [.close([cb])](#module_connection-pool-party.ConnectionPoolParty+close) ⇒ <code>Promise</code>
-    * [.stats()](#module_connection-pool-party.ConnectionPoolParty+stats) ⇒ <code>Object</code>
 
 <a name="new_module_connection-pool-party.ConnectionPoolParty_new"></a>
 
@@ -65,36 +59,6 @@ being removed, which will allow warmup to be re-attempted.
 | --- | --- | --- |
 | [cb] | <code>function</code> | An optional callback interface. It is preferable to use the  Promise-based interface. |
 
-<a name="module_connection-pool-party.ConnectionPoolParty+request"></a>
-
-#### connectionPoolParty.request() ⇒ <code>mssql.Request</code>
-Retrieve a new Request instance. This is the same Request provided by the mssql
-package, but it's specially extended to interact with ConnectionPoolParty.
-
-**Kind**: instance method of [<code>ConnectionPoolParty</code>](#module_connection-pool-party.ConnectionPoolParty)  
-**Returns**: <code>mssql.Request</code> - An extended instance of mssql.Request.  
-<a name="module_connection-pool-party.ConnectionPoolParty+close"></a>
-
-#### connectionPoolParty.close([cb]) ⇒ <code>Promise</code>
-Close all pools associated with this instance of ConnectionPoolParty
-
-**Kind**: instance method of [<code>ConnectionPoolParty</code>](#module_connection-pool-party.ConnectionPoolParty)  
-**Returns**: <code>Promise</code> - A Promise that resolves when all pools are closed. Will also
- resolve if there is an error encountered while closing the pools.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| [cb] | <code>function</code> | An optional callback interface. It is preferable to use the  Promise-based interface. |
-
-<a name="module_connection-pool-party.ConnectionPoolParty+stats"></a>
-
-#### connectionPoolParty.stats() ⇒ <code>Object</code>
-Retrieve health and statistics for this ConnectionPoolParty and its associated
-pools.
-
-**Kind**: instance method of [<code>ConnectionPoolParty</code>](#module_connection-pool-party.ConnectionPoolParty)  
-**Returns**: <code>Object</code> - An object containing a bunch of health/stats data for this instance
- of ConnectionPoolParty and its associated pools.  
 <a name="module_connection-pool-party.forceFqdnConnectionPoolFactory"></a>
 
 ### connection-pool-party.forceFqdnConnectionPoolFactory(suffix) ⇒ <code>Promise</code>
