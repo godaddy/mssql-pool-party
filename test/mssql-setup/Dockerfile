@@ -13,6 +13,6 @@ COPY . /usr/src/app
 RUN chmod +x /usr/src/app/entrypoint.sh
 RUN chmod +x /usr/src/app/import-data.sh
 
-RUN echo 'export "PATH=$PATH:/opt/mssql-tools/bin"' >> /root/.bashrc
+RUN echo 'export "PATH=$PATH:/opt/mssql-tools18/bin"' >> /root/.bashrc
 
 ENTRYPOINT [ "/usr/src/app/entrypoint.sh" ]

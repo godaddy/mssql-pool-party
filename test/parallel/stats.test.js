@@ -84,11 +84,13 @@ describe('stats tests', () => {
         password: 'PoolPartyyy9000',
         server: 'localhost',
         database: 'PoolParty',
+        encrypt: false,
       }, {
         user: 'sa',
         password: 'PoolPartyyy9000',
         server: 'localhost',
         database: 'PoolParty',
+        encrypt: false,
       }],
       retries: 1,
       reconnects: 1,

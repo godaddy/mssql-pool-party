@@ -1,3 +1,10 @@
+# 2.0.0 (August 20, 2024)
+
+## Breaking
+
+- `mssql` dependency has been upgraded from 9.x to 11.x.
+- The minimum Node.js version is now 18.x.
+
 # 1.0.0 (October 12, 2022)
 
 ## Breaking

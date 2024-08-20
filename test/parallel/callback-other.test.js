@@ -7,6 +7,7 @@ const config = {
     server: 'localhost',
     database: 'PoolParty',
     trustServerCertificate: true,
+    encrypt: false,
   },
   retries: 1,
   reconnects: 1,
