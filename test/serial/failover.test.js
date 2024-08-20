@@ -15,6 +15,7 @@ describe('failover tests', () => {
         server: 'localhost',
         database: 'PoolParty',
         trustServerCertificate: true,
+        encrypt: false,
       }, {
         user: 'sa',
         password: 'PoolPartyyy9000',
@@ -22,6 +23,7 @@ describe('failover tests', () => {
         database: 'PoolParty',
         port: 1434,
         trustServerCertificate: true,
+        encrypt: false,
       }],
       retries: 1,
       reconnects: 1,

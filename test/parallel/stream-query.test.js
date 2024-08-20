@@ -46,6 +46,7 @@ describe('query tests using stream interface', () => {
         server: 'localhost',
         database: 'PoolParty',
         trustServerCertificate: true,
+        encrypt: false,
       },
       connectionPoolConfig: {
         stream: true,
@@ -198,6 +199,7 @@ describe('query tests using stream interface', () => {
         server: 'localhost',
         database: 'PoolParty',
         trustServerCertificate: true,
+        encrypt: false,
       },
       connectionPoolConfig: {
         stream: true,

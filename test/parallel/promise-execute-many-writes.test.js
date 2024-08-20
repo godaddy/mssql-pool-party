@@ -14,12 +14,14 @@ describe('execute many writes tests using promise interface', () => {
         server: 'localhost',
         database: 'PoolParty',
         trustServerCertificate: true,
+        encrypt: false,
       },
       retries: 1,
       reconnects: 1,
       connectionPoolOptions: {
         options: {
           trustServerCertificate: true,
+          encrypt: false,
         },
       },
     });

@@ -21,6 +21,7 @@ describe.skip('prioritized pools tests', () => {
           database: 'PoolParty',
           priority: 1,
           trustServerCertificate: true,
+          encrypt: false,
         },
         {
           user: 'sa',
@@ -29,6 +30,7 @@ describe.skip('prioritized pools tests', () => {
           database: 'PoolParty',
           priority: 0,
           trustServerCertificate: true,
+          encrypt: false,
         },
       ],
       prioritizePools: true,
@@ -67,6 +69,7 @@ describe.skip('prioritized pools tests', () => {
           database: 'PoolParty',
           priority: 1,
           trustServerCertificate: true,
+          encrypt: false,
         },
         {
           user: 'sa',
@@ -75,6 +78,7 @@ describe.skip('prioritized pools tests', () => {
           database: 'PoolParty',
           priority: 0,
           trustServerCertificate: true,
+          encrypt: false,
         },
       ],
       prioritizePools: true,
@@ -121,6 +125,7 @@ describe.skip('prioritized pools tests', () => {
           database: 'PoolParty',
           priority: 1,
           trustServerCertificate: true,
+          encrypt: false,
         },
         {
           user: 'sa',
@@ -129,6 +134,7 @@ describe.skip('prioritized pools tests', () => {
           database: 'PoolParty',
           priority: 0,
           trustServerCertificate: true,
+          encrypt: false,
         },
       ],
       prioritizePools: true,
@@ -167,6 +173,7 @@ describe.skip('prioritized pools tests', () => {
           database: 'PoolParty',
           priority: 2,
           trustServerCertificate: true,
+          encrypt: false,
         },
         {
           user: 'sa',
@@ -175,6 +182,7 @@ describe.skip('prioritized pools tests', () => {
           database: 'PoolParty',
           priority: 0,
           trustServerCertificate: true,
+          encrypt: false,
         },
         {
           user: 'sa',
@@ -183,6 +191,7 @@ describe.skip('prioritized pools tests', () => {
           database: 'PoolParty',
           priority: 1,
           trustServerCertificate: true,
+          encrypt: false,
         },
       ],
       prioritizePools: true,
@@ -233,6 +242,7 @@ describe.skip('prioritized pools tests', () => {
           database: 'PoolParty',
           priority: 1,
           trustServerCertificate: true,
+          encrypt: false,
         },
         {
           user: 'sa',
@@ -241,6 +251,7 @@ describe.skip('prioritized pools tests', () => {
           database: 'PoolParty',
           priority: 0,
           trustServerCertificate: true,
+          encrypt: false,
         },
         {
           user: 'sa',
@@ -249,6 +260,7 @@ describe.skip('prioritized pools tests', () => {
           database: 'PoolParty',
           priority: 2,
           trustServerCertificate: true,
+          encrypt: false,
         },
       ],
       prioritizePools: true,
@@ -303,6 +315,7 @@ describe.skip('prioritized pools tests', () => {
           server: 'localhost',
           database: 'PoolParty',
           trustServerCertificate: true,
+          encrypt: false,
         },
         {
           id: 'pool2',
@@ -311,6 +324,7 @@ describe.skip('prioritized pools tests', () => {
           server: 'localhost',
           database: 'PoolParty',
           trustServerCertificate: true,
+          encrypt: false,
         },
       ],
       prioritizePools: true,

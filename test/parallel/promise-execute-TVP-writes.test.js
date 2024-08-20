@@ -14,10 +14,12 @@ describe('execute TVP write using promise interface', () => {
         server: 'localhost',
         database: 'PoolParty',
         trustServerCertificate: true,
+        encrypt: false,
       },
       connectionPoolOptions: {
         options: {
           trustServerCertificate: true,
+          encrypt: false,
         },
       },
     });

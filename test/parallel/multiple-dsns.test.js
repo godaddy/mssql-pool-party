@@ -15,6 +15,7 @@ describe('multiple dsn tests', () => {
           server: 'localhost',
           database: 'PoolParty',
           trustServerCertificate: true,
+          encrypt: false,
         },
         {
           user: 'sa',
@@ -22,6 +23,7 @@ describe('multiple dsn tests', () => {
           server: 'localhost',
           database: 'PoolParty',
           trustServerCertificate: true,
+          encrypt: false,
         },
       ],
     });

@@ -12,6 +12,7 @@ describe('healing race tests', () => {
         server: 'localhost',
         database: 'PoolParty',
         trustServerCertificate: true,
+        encrypt: false,
       },
       reconnects: 1,
     });
